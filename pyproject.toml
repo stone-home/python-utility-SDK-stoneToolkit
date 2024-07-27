@@ -18,7 +18,6 @@ PyYAML = "^6.0.1"
 [tool.poetry.dev-dependencies]
 pytest = "^8.3.2"
 Commitizen = "3.28.0"
-poetry = "^1.8.3"
 
 
 
