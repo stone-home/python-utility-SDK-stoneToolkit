@@ -16,5 +16,5 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.PAT }}
           PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
           PYTHON_VERSION: "3.11"
-          PACKAGE_DIRECTORY: "./stone_lib"
+          PACKAGE_DIRECTORY: "./stone_lib/"
           BRANCH: "trunk"
