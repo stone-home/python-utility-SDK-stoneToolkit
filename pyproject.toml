@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "stone-lib"
+version = "0.1.0"
+description = "This is a library used for sharing common code acorss all stone's projects."
+authors = ["stone <github@stone-bo.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/stone-home/python-utility-SDK-stoneToolkit.git"
+packages = [
+    { include = "stone_lib", from = "." }
+]
+keywords = ["Personal Toolkit", "utility", "SDK"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+PyYAML = "^6.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.3.2"
+Commitizen = "3.28.0"
+
+
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v0.1.0"
+version_scheme = "pep440"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
