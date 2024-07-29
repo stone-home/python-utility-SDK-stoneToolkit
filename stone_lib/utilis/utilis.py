@@ -1,6 +1,7 @@
 import uuid
 import datetime
 import os
+import tempfile
 from typing import List, Optional
 
 
@@ -129,3 +130,13 @@ def list_directories(path: str) -> Optional[List[str]]:
     directories = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
 
     return directories
+
+
+def fetch_temp_folder() -> str:
+    """Fetch a temporary folder.
+
+    Returns:
+        str: a temporary folder path
+
+    """
+    return tempfile.TemporaryDirectory().name
