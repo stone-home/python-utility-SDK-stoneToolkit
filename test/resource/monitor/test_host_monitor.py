@@ -1,13 +1,22 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open, Mock
-from src.monitor.host_monitor import HostMetrics, _Template, MonitorThreading, HostMonitor, threading
-from src.monitor.nvml import HostGPUs
+from stone_lib.resource.monitor.host_monitor import HostMetrics, _Template, MonitorThreading, HostMonitor, threading
+from stone_lib.resource.monitor.nvml import HostGPUs
+
+
+MonitorModuleRootPath = None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_monitor_module_root_path(monitor_package_path):
+    global MonitorModuleRootPath
+    MonitorModuleRootPath = monitor_package_path
 
 
 class TestHostMetrics:
-    @patch("src.monitor.nvml.HostGPUs")
-    @patch("src.monitor.host_monitor.EthernetMonitor")
-    @patch("src.monitor.host_monitor.CGroupMonitor")
+    @patch(f"stone_lib.resource.monitor.nvml.HostGPUs")
+    @patch(f"stone_lib.resource.monitor.host_monitor.EthernetMonitor")
+    @patch(f"stone_lib.resource.monitor.host_monitor.CGroupMonitor")
     def test_init(self, mock_cg, mock_eth, mock_gpu):
         interval = 10
         gpu_enable = False
@@ -24,9 +33,9 @@ class TestHostMetrics:
         mock_eth.assert_called_once()
         mock_gpu.assert_not_called()
 
-    @patch("src.monitor.nvml.HostGPUs")
-    @patch("src.monitor.host_monitor.EthernetMonitor")
-    @patch("src.monitor.host_monitor.CGroupMonitor")
+    @patch("stone_lib.resource.monitor.nvml.HostGPUs")
+    @patch("stone_lib.resource.monitor.host_monitor.EthernetMonitor")
+    @patch("stone_lib.resource.monitor.host_monitor.CGroupMonitor")
     def test_init_with_gpu(self, mock_cg, mock_eth, mock_gpu):
         interval = 10
         gpu_enable = True
@@ -60,9 +69,9 @@ class TestHostMetrics:
         interval = 10
         gpu_enable = True
         uuid = "test"
-        with patch("src.monitor.host_monitor.CGroupMonitor", return_value=mock_cg) as mock_cg, \
-                patch("src.monitor.host_monitor.EthernetMonitor", return_value=mock_eth) as mock_eth, \
-                patch("src.monitor.nvml.HostGPUs", return_value=mock_gpu) as mock_gpu:
+        with patch("stone_lib.resource.monitor.host_monitor.CGroupMonitor", return_value=mock_cg) as mock_cg, \
+                patch("stone_lib.resource.monitor.host_monitor.EthernetMonitor", return_value=mock_eth) as mock_eth, \
+                patch("stone_lib.resource.monitor.nvml.HostGPUs", return_value=mock_gpu) as mock_gpu:
             return HostMetrics(interval=interval, gpu_enable=gpu_enable, uuid=uuid)
 
     def test_property_interval(self, instance):
@@ -75,7 +84,7 @@ class TestHostMetrics:
     def test_get_records(self, instance):
         assert instance.get_records() == []
 
-    @patch("src.monitor.host_monitor.time")
+    @patch("stone_lib.resource.monitor.host_monitor.time")
     def test_record(self, mock_time, instance):
         instance.cgroup.cpu_usage.side_effect = [100000, 200000]
 
@@ -116,7 +125,7 @@ class TestHostMetrics:
             "gpu": {"gpu": "test"}
         }
 
-    @patch("src.monitor.host_monitor.time")
+    @patch("stone_lib.resource.monitor.host_monitor.time")
     def test_record_withnot_gpu(self, mock_time, instance):
         instance.gpu = None
         instance.cgroup.cpu_usage.side_effect = [100000, 200000]
@@ -156,7 +165,7 @@ class TestHostMetrics:
             "gpu": {}
         }
 
-    @patch("src.monitor.host_monitor.time")
+    @patch("stone_lib.resource.monitor.host_monitor.time")
     def test_record_with_max_memory(self, mock_time, instance):
         instance.gpu = None
         instance.cgroup.cpu_usage.side_effect = [100000, 200000]
@@ -232,7 +241,7 @@ class TestMonitorThreading:
         monitor = MonitorThreading()
         assert monitor.is_alive is False
 
-    @patch("src.monitor.host_monitor.threading.Thread", return_value=MagicMock())
+    @patch("stone_lib.resource.monitor.host_monitor.threading.Thread", return_value=MagicMock())
     def test_run(self, mock_thread):
         monitor = MonitorThreading()
         monitor.run()
@@ -243,7 +252,7 @@ class TestMonitorThreading:
         mock_thread.assert_called_once_with(target=monitor.func, kwargs=kwargs)
         mock_thread.start.called_once()
 
-    @patch("src.monitor.host_monitor.threading.Thread", return_value=MagicMock())
+    @patch("stone_lib.resource.monitor.host_monitor.threading.Thread", return_value=MagicMock())
     def test_run_with_kwargs(self, mock_thread):
         monitor = MonitorThreading()
         monitor.run(temp="test")
@@ -255,7 +264,7 @@ class TestMonitorThreading:
         mock_thread.assert_called_once_with(target=monitor.func, kwargs=kwargs)
         monitor.thread.start.assert_called_once()
 
-    @patch("src.monitor.host_monitor.threading.Event")
+    @patch("stone_lib.resource.monitor.host_monitor.threading.Event")
     def test_stop(self, mock_event):
         monitor = MonitorThreading()
         monitor.thread = MagicMock()
@@ -263,7 +272,7 @@ class TestMonitorThreading:
         assert monitor.stop_flat is mock_event.return_value
         monitor.stop_flat.set.assert_called_once()
 
-    @patch("src.monitor.host_monitor.threading.Event")
+    @patch("stone_lib.resource.monitor.host_monitor.threading.Event")
     def test_stop_thread_not_exist(self, mock_event):
         monitor = MonitorThreading()
         monitor.stop()
@@ -279,7 +288,7 @@ class TestHostMonitor:
         assert monitor._thread == {}
         assert monitor._stopping_thread == {}
 
-    @patch("src.monitor.host_monitor.MonitorThreading")
+    @patch("stone_lib.resource.monitor.host_monitor.MonitorThreading")
     def test_start_new_monitor(self, mock_monitor_thread):
         monitor = HostMonitor()
         kwargs = {

@@ -2,7 +2,7 @@ import sys
 
 import pytest
 from unittest.mock import patch, MagicMock, PropertyMock
-from src.monitor.nvml import GPUMetric, nvml, HostGPUs
+from stone_lib.resource.monitor.nvml import GPUMetric, nvml, HostGPUs
 
 
 class TestGPUMetric:
@@ -370,7 +370,7 @@ class TestHostGPUs:
             mock_instance = MagicMock()
             mock_instance.index = i
             mock_instance.append(mock_instance)
-        with patch("src.monitor.nvml.GPUMetric", side_effect=mock_instance) as mock_gpumetric:
+        with patch("stone_lib.resource.monitor.nvml.GPUMetric", side_effect=mock_instance) as mock_gpumetric:
             instance = HostGPUs()
             mock_nvmlInit.assert_called_once()
             mock_nvmlDeviceGetCount.assert_called_once()

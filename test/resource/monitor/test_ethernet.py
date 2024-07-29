@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, mock_open, Mock, MagicMock, PropertyMock
-from src.monitor.ethernet import EthernetMonitor, EthernetMetrics
+from stone_lib.resource.monitor.ethernet import EthernetMonitor, EthernetMetrics
 
 
 mock_data ="""Inter-|   Receive                                                |  Transmit
@@ -8,7 +8,6 @@ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packet
 lo:  446088     4890    0    0    0     0          0         0   446088     4890    0    0    0     0       0          0
 eth0: 20714750   15080    0    0    0     0          0         0  1420561    10239    0    0    0     0       0          0
 """
-
 
 class TestEthernetMetric:
     @pytest.fixture
@@ -138,7 +137,7 @@ class TestEthernetMonitor:
                 mock_class_1.interface = "lo"
                 mock_class_2 = Mock()
                 mock_class_2.interface = "eth0"
-                with patch("src.monitor.ethernet.EthernetMetrics", side_effect=[mock_class_1, mock_class_2]) as mock_class:
+                with patch(f"stone_lib.resource.monitor.ethernet.EthernetMetrics", side_effect=[mock_class_1, mock_class_2]) as mock_class:
                     result = instance._get_structured_data()
                     assert result == {
                         "lo": mock_class_1,

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, mock_open, MagicMock
-from src.monitor.cgroup import _CGroupAbc, CGroupV1, CGroupV2, CGroupMonitor
+from stone_lib.resource.monitor.cgroup import _CGroupAbc, CGroupV1, CGroupV2, CGroupMonitor
 
 
 class TestCGroupAbc:
@@ -80,7 +80,6 @@ class TestCGroupV1:
             result = cgroup.memory_max()
             assert result == -1
             mock_method.assert_called_once_with("memory/memory.limit_in_bytes")
-
 
 
 class TestCGroupV2:
