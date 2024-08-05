@@ -1,3 +1,9 @@
+## v0.3.2 (2024-08-05)
+
+### Fix
+
+- **version**: fix version format issues
+
 ## v0.3.1 (2024-08-05)
 
 ### Fix
