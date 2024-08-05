@@ -1,3 +1,9 @@
+## v0.3.3 (2024-08-05)
+
+### Fix
+
+- **research**: fix dir_check issue in result_location
+
 ## v0.3.2 (2024-08-05)
 
 ### Fix
