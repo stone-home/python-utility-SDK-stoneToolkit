@@ -1,3 +1,9 @@
+## v0.3.1 (2024-08-05)
+
+### Fix
+
+- **auto-update**: fix type on bumping command
+
 ## v0.3.0 (2024-08-05)
 
 ### Feat
