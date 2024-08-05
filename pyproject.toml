@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stone-lib"
-version = "v0.3.0"
+version = "0.3.0"
 description = "This is a library used for sharing common code acorss all stone's projects."
 authors = ["stone <github@stone-bo.com>"]
 license = "MIT"
@@ -12,14 +12,14 @@ packages = [
 keywords = ["Personal Toolkit", "utility", "SDK"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.8"
 PyYAML = "^6.0.1"
 pandas = "^2.2.2"
-pynvml = "11.5.3"
+pynvml = "^11.5.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^8.3.2"
-Commitizen = "3.28.0"
+pytest = ">=8.3.2"
+Commitizen = ">=3.28.0"
 
 
 
