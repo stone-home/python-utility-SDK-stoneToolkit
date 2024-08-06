@@ -140,3 +140,26 @@ def fetch_temp_folder() -> str:
 
     """
     return tempfile.TemporaryDirectory().name
+
+def format_memory(nbytes: int) -> str:
+    """Format memory size in human-readable format.
+
+    Args:
+        nbytes (int): the memory size in bytes
+
+    Returns:
+        str: the memory size in human-readable format
+
+    **The function is copied from PyTorch source code.**
+    """
+    KB = 1024
+    MB = 1024 * KB
+    GB = 1024 * MB
+    if abs(nbytes) >= GB:
+        return f"{nbytes * 1.0 / GB:.2f} Gb"
+    elif abs(nbytes) >= MB:
+        return f"{nbytes * 1.0 / MB:.2f} Mb"
+    elif abs(nbytes) >= KB:
+        return f"{nbytes * 1.0 / KB:.2f} Kb"
+    else:
+        return str(nbytes) + " b"
