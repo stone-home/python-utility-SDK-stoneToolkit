@@ -1,3 +1,13 @@
+## v0.4.0 (2024-08-19)
+
+### Feat
+
+- **utils**: add format_memory
+
+### Fix
+
+- **reseaech**: fix 'auto_fetch_location must return a dir string instead of file string'
+
 ## v0.3.2 (2024-08-05)
 
 ### Fix
