@@ -141,6 +141,7 @@ def fetch_temp_folder() -> str:
     """
     return tempfile.TemporaryDirectory().name
 
+
 def format_memory(nbytes: int) -> str:
     """Format memory size in human-readable format.
 
