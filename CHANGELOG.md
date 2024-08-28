@@ -1,3 +1,9 @@
+## v0.5.0 (2024-08-28)
+
+### Feat
+
+- **flame-diagram**: add flame diagram class
+
 ## v0.4.0 (2024-08-19)
 
 ### Feat
