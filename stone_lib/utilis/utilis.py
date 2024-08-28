@@ -164,3 +164,28 @@ def format_memory(nbytes: int) -> str:
         return f"{nbytes * 1.0 / KB:.2f} Kb"
     else:
         return str(nbytes) + " b"
+
+
+def get_temp_folder():
+    """Create a temporary dir
+
+    Returns:
+        path of the temp dir
+    """
+    return tempfile.TemporaryDirectory().name
+
+
+def temp_dir_with_specific_path(*args):
+    """Create a temporary directory with a specific path.
+
+    Args:
+        *args: Variable length argument list to specify the subdirectory path.
+
+    Returns:
+        str: The path of the created temporary directory.
+    """
+    temp_dir = tempfile.gettempdir()
+    flame_temp = os.path.join(temp_dir, *args)
+    if not os.path.isdir(flame_temp):
+        os.makedirs(flame_temp, exist_ok=True)
+    return flame_temp
