@@ -46,7 +46,6 @@ class TreeNode:
         """
         if child not in self.children:
             self._children[child.id] = child
-            child.set_parent(self)
 
     def remove_child(self, child: TreeNode):
         """ Remove a child node from the current node.
