@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-poetry lock --no-update && \\
+poetry lock&& \\
 git add . && \\
 git commit -m "build(poetry): update poetry.lock" && \\
 cz bump && \\
