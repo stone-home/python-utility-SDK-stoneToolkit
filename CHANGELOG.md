@@ -1,3 +1,9 @@
+## v0.6.1 (2024-08-29)
+
+### Fix
+
+- **tree**: fix recursionerror when set_parent is called
+
 ## v0.6.0 (2024-08-29)
 
 ### Feat
