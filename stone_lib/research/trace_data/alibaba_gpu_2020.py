@@ -9,11 +9,19 @@ class Alibaba2020TraceData:
     _instances = {}  # Dictionary to store the instance
 
     def __new__(cls, *args, **kwargs):
+        """ Singleton pattern to ensure only one instance of the class is created."""
         if cls not in cls._instances:  # If the instance doesn't exist, create it
             cls._instances[cls] = super(Alibaba2020TraceData, cls).__new__(cls)
         return cls._instances[cls]  # Return the instance
 
     def __init__(self, target_dir: str = None, cache_dir: str = None):
+        """ The class of managing the Alibaba 2020 GPU trace data.
+
+        Args:
+            target_dir (str): The directory to store the trace data.
+            cache_dir (str): The directory to store the cache files.
+                Default is None, which means the cache files will be stored in cache directory under the target directory.
+        """
         self.target_dir = target_dir
         self.cache_dir = cache_dir or os.path.join(target_dir, "caches")
         self._init()
@@ -58,29 +66,67 @@ class Alibaba2020TraceData:
         return self._data_name["metric"]
 
     def _init(self):
-        if os.path.exists(self.target_dir):
+        """ prepare the target directory and cache directory."""
+        if not os.path.exists(self.target_dir):
             os.makedirs(self.target_dir, exist_ok=True)
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir, exist_ok=True)
 
-    def _build_2020_trace_link(self, data_name: str):
+    def _build_2020_trace_link(self, data_name: str) -> str:
+        """ Build the link to download the trace data.
+
+        Args:
+            data_name (str): The name of the trace data.
+
+        Returns:
+            str: The link to download the trace data.
+
+        """
         if data_name not in self._data_name.values():
             raise ValueError(f"Data name {data_name} is not valid.")
         _base_link = "https://aliopentrace.oss-cn-beijing.aliyuncs.com/v2020GPUTraces"
         return f"{_base_link}/{data_name}.tar.gz"
 
     def _build_2020_trace_header_link(self, data_name: str):
+        """ Build the link to download the header file of the trace data.
+        
+        Args:
+            data_name (str): The name of the trace data.
+
+        Returns:
+            str: The link to download the header file.
+
+        """
         if data_name not in self._data_name.values():
             raise ValueError(f"Data name {data_name} is not valid.")
         _base_link = "https://raw.githubusercontent.com/alibaba/clusterdata/master/cluster-trace-gpu-v2020/data"
         return f"{_base_link}/{data_name}.header"
 
-    def _build_cache_file(self, data_type: str):
+    def _build_cache_file(self, data_type: str) -> str:
+        """ Build the cache file path.
+
+        Args:
+            data_type (str): The type of the data.
+
+        Returns:
+            str: The cache file path.
+
+        """
         file_name = f"{data_type}_cache.csv"
         dir_path = self.cache_dir
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
         return os.path.join(dir_path, file_name)
 
     def _store_cache(self, data_type: str, data: pd.DataFrame, cache_file: bool = True):
+        """ Store the data into cache file or memory.
+
+        Args:
+            data_type (str): The type of the data.
+            data (pd.DataFrame): The data to store.
+            cache_file (bool): Whether to store the data into cache file.
+
+        Returns:
+
+        """
         if cache_file:
             cache_file = self._build_cache_file(data_type)
             data.to_csv(cache_file, index=True)
@@ -90,7 +136,16 @@ class Alibaba2020TraceData:
                 raise ValueError(f"Failed to save {data_type} cache file.")
         self._cache[data_type] = data
 
-    def _get_cache(self, data_type: str):
+    def _get_cache(self, data_type: str) -> pd.DataFrame:
+        """ Get the cache data from memory or cache file.
+
+        Args:
+            data_type (str): The type of the data.
+
+        Returns:
+            pd.DataFrame: The cache data.
+
+        """
         cache_file = self._build_cache_file(data_type)
         if data_type not in self._cache.keys() and os.path.isfile(cache_file):
             print(f"Loading {data_type} cache file...")
@@ -104,6 +159,16 @@ class Alibaba2020TraceData:
         return _cache
 
     def download_single_trace_data(self, data_name: str, force=False):
+        """ Download a single trace data.
+
+        Args:
+            data_name (str): The name of the trace data.
+            force (bool): Whether to force download the data.
+
+        Returns:
+            None
+
+        """
         url = self._build_2020_trace_link(data_name)
         header_link = self._build_2020_trace_header_link(data_name)
         file_name = url.split("/")[-1]
@@ -121,10 +186,21 @@ class Alibaba2020TraceData:
         self.download(header_url, os.path.join(self.target_dir, header_file_name))
 
     def download_all_trace_data(self):
+        """ Download all trace data."""
         for data_name in self._data_name.values():
             self.download_single_trace_data(data_name)
 
     def download(self, url, targe_file, force=False):
+        """ Download the file from the url.
+
+        Args:
+            url (str): The url to download the file.
+            targe_file (str): The file path to store the downloaded file.
+            force (bool): Whether to force download the file.
+
+        Returns:
+            None
+        """
         if os.path.isfile(targe_file) and not force:
             return
         response = requests.get(url)
@@ -132,10 +208,21 @@ class Alibaba2020TraceData:
             file.write(response.content)
 
     def extract(self, tar_file, target_dir):
+        """ Extract the tar file to the target directory."""
         with tarfile.open(tar_file) as tar:
             tar.extractall(target_dir)
 
-    def get_df(self, data_type, force=False):
+    def get_df(self, data_type, force=False) -> pd.DataFrame:
+        """ Get the data frame of the trace data.
+
+        Args:
+            data_type (str): The type of the data.
+            force (bool): Whether to force get the data.
+
+        Returns:
+            pd.DataFrame: The data frame of the trace data.
+
+        """
         data_name = None
         if data_type in self._data_name.keys():
             data_name = self._data_name[data_type]
@@ -161,6 +248,15 @@ class Alibaba2020TraceData:
         return self._get_cache(data_type)
 
     def _get_df_from_csv(self, data_name: str) -> pd.DataFrame:
+        """ Get the data frame from the csv file.
+
+        Args:
+            data_name (str): The name of the data.
+
+        Returns:
+            pd.DataFrame: The data frame of the trace data.
+
+        """
         print(f"Loading {data_name} dataframes...")
         csv_file = os.path.join(self.target_dir, f"{data_name}.csv")
         header_file = os.path.join(self.target_dir, f"{data_name}.header")
