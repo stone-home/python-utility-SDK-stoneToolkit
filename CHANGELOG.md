@@ -1,3 +1,9 @@
+## v0.6.0 (2024-08-29)
+
+### Feat
+
+- **data-structure**: add tree and bi-directional data structure
+
 ## v0.4.0 (2024-08-19)
 
 ### Feat
