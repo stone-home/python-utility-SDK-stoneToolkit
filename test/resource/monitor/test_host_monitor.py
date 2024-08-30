@@ -1,10 +1,12 @@
+from unittest.mock import MagicMock, Mock, mock_open, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, mock_open, Mock
+
 from stone_lib.resource.monitor.host_monitor import (
     HostMetrics,
-    _Template,
-    MonitorThreading,
     HostMonitor,
+    MonitorThreading,
+    _Template,
     threading,
 )
 from stone_lib.resource.monitor.nvml import HostGPUs

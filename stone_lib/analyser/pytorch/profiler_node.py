@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Iterator, List, Dict, Any
+from typing import Any, Dict, Iterator, List, Optional
+
 from stone_lib.data_structure import TreeNode
 
 

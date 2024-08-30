@@ -1,10 +1,11 @@
-import threading
-import time
-import os
 import json
 import logging
+import os
+import threading
+import time
 import uuid
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
+
 from .cgroup import CGroupMonitor
 from .ethernet import EthernetMonitor
 

@@ -1,13 +1,15 @@
-import pytest
 import copy
 import xml.etree.ElementTree as ET
 from unittest.mock import patch
+
+import pytest
+
 from stone_lib.analyser.pytorch.profiler_analyser import (
-    StackNode,
-    OperatorNode,
     CpuInstantNode,
-    StackLeaf,
     ModelCallStacks,
+    OperatorNode,
+    StackLeaf,
+    StackNode,
 )
 
 
@@ -72,22 +74,22 @@ class TestStackLeaf:
         assert stack_leaf.flame_string(module_only=True) == None
 
     def test_long_flame_string_module_only_1(self, five_node_stack):
-        five_node_stack.parent.parent.value[
-            "name"
-        ] = "torch.nn.functional.py: _call_impl"
-        five_node_stack.parent.parent.parent.value[
-            "name"
-        ] = "torch.nn.modules.module.py: Conv2d"
+        five_node_stack.parent.parent.value["name"] = (
+            "torch.nn.functional.py: _call_impl"
+        )
+        five_node_stack.parent.parent.parent.value["name"] = (
+            "torch.nn.modules.module.py: Conv2d"
+        )
         stack_leaf = StackLeaf(five_node_stack)
         assert stack_leaf.flame_string(module_only=True) == "Conv2d 1"
 
     def test_is_model_layer_trace__true(self, five_node_stack):
-        five_node_stack.parent.parent.value[
-            "name"
-        ] = "torch.nn.functional.py: _call_impl"
-        five_node_stack.parent.parent.parent.value[
-            "name"
-        ] = "torch.nn.modules.module.py: Conv2d"
+        five_node_stack.parent.parent.value["name"] = (
+            "torch.nn.functional.py: _call_impl"
+        )
+        five_node_stack.parent.parent.parent.value["name"] = (
+            "torch.nn.modules.module.py: Conv2d"
+        )
         stack_leaf = StackLeaf(five_node_stack)
         assert stack_leaf.is_model_layer_trace == True
 

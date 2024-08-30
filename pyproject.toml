@@ -20,6 +20,7 @@ pynvml = "^11.5.3"
 [tool.poetry.dev-dependencies]
 pytest = ">=8.3.2"
 Commitizen = ">=3.28.0"
+pre-commit = ">=3.8.0"
 
 
 

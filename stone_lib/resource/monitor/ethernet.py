@@ -1,6 +1,6 @@
-import os
 import logging
-from typing import List, Dict
+import os
+from typing import Dict, List
 
 logger = logging.getLogger()
 

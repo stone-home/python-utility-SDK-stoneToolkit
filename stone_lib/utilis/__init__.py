@@ -1,6 +1,6 @@
-from .utilis import *
-from .network import *
 from .enum import EnumManipulator
+from .network import *
+from .utilis import *
 
 __all__ = [
     "zettelkasten_id",

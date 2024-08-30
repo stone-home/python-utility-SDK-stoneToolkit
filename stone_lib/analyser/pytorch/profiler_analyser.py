@@ -1,6 +1,8 @@
-from typing import List, Optional, Tuple, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
+
 from stone_lib.utilis.diagram import FlameGraph
-from .profiler_node import StackNode, OperatorNode, CpuInstantNode
+
+from .profiler_node import CpuInstantNode, OperatorNode, StackNode
 
 
 class StackLeaf:

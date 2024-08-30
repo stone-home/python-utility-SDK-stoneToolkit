@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Optional, Any, Dict, AnyStr
+
 import uuid
+from typing import Any, AnyStr, Dict, Optional
 
 
 class BiDirection:

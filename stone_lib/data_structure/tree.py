@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Optional, Any, Dict, AnyStr, Iterator, List
+
 import uuid
+from typing import Any, AnyStr, Dict, Iterator, List, Optional
 
 from six import Iterator
 
@@ -46,7 +47,7 @@ class TreeNode:
         Returns:
             None
         """
-        if child not in self.children:
+        if child.id not in self.children.keys():
             self._children[child.id] = child
             child.set_parent(self)
 

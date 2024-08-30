@@ -1,7 +1,8 @@
-import pytest
-from unittest.mock import patch, mock_open, Mock, MagicMock, PropertyMock
-from stone_lib.resource.monitor.ethernet import EthernetMonitor, EthernetMetrics
+from unittest.mock import MagicMock, Mock, PropertyMock, mock_open, patch
 
+import pytest
+
+from stone_lib.resource.monitor.ethernet import EthernetMetrics, EthernetMonitor
 
 mock_data = """Inter-|   Receive                                                |  Transmit
 face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed

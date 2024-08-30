@@ -1,6 +1,8 @@
+from typing import Any, Optional
+
 import yaml
-from typing import Optional, Any
-from stone_lib.utilis import zettelkasten_id, time_now
+
+from stone_lib.utilis import time_now, zettelkasten_id
 
 
 class MetaData:

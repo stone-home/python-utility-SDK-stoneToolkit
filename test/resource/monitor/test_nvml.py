@@ -1,8 +1,9 @@
 import sys
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
-from unittest.mock import patch, MagicMock, PropertyMock
-from stone_lib.resource.monitor.nvml import GPUMetric, nvml, HostGPUs
+
+from stone_lib.resource.monitor.nvml import GPUMetric, HostGPUs, nvml
 
 
 class TestGPUMetric:

@@ -1,8 +1,9 @@
-import requests
-import tarfile
 import os
-import pandas as pd
+import tarfile
 from urllib.parse import urljoin
+
+import pandas as pd
+import requests
 
 
 class Alibaba2020TraceData:

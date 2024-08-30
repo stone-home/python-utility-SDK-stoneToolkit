@@ -1,10 +1,12 @@
+from unittest.mock import MagicMock, mock_open, patch
+
 import pytest
-from unittest.mock import patch, mock_open, MagicMock
+
 from stone_lib.resource.monitor.cgroup import (
-    _CGroupAbc,
+    CGroupMonitor,
     CGroupV1,
     CGroupV2,
-    CGroupMonitor,
+    _CGroupAbc,
 )
 
 

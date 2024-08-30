@@ -1,7 +1,7 @@
 import logging
-import pynvml as nvml
 from typing import Dict
 
+import pynvml as nvml
 
 logger = logging.getLogger()
 

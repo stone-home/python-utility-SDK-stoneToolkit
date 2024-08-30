@@ -1,9 +1,10 @@
 import os
 import re
 from pathlib import Path
-from typing import Tuple, AnyStr
-from stone_lib.obsidian.metadata import MetaData
+from typing import AnyStr, Tuple
+
 from stone_lib.obsidian.body import Body
+from stone_lib.obsidian.metadata import MetaData
 
 
 class Note:
