@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock, mock_open, patch
-
 import pytest
-
 from stone_lib.resource.monitor.cgroup import (
     CGroupMonitor,
     CGroupV1,

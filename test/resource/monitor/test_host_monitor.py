@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock, Mock, mock_open, patch
-
 import pytest
-
 from stone_lib.resource.monitor.host_monitor import (
     HostMetrics,
     HostMonitor,

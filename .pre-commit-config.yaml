@@ -9,3 +9,13 @@ repos:
     rev: 24.8.0
     hooks:
     -   id: black
+-  repo: local
+   hooks:
+    -   id: smoking test
+        name: Smoking test
+        entry: pytest --cache-clear test
+        language: python
+        language_version: python3.11
+        types: [python]
+        pass_filename: false
+        verbose: true
