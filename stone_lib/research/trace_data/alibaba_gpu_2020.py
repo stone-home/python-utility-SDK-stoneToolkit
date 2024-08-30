@@ -9,13 +9,13 @@ class Alibaba2020TraceData:
     _instances = {}  # Dictionary to store the instance
 
     def __new__(cls, *args, **kwargs):
-        """ Singleton pattern to ensure only one instance of the class is created."""
+        """Singleton pattern to ensure only one instance of the class is created."""
         if cls not in cls._instances:  # If the instance doesn't exist, create it
             cls._instances[cls] = super(Alibaba2020TraceData, cls).__new__(cls)
         return cls._instances[cls]  # Return the instance
 
     def __init__(self, target_dir: str = None, cache_dir: str = None):
-        """ The class of managing the Alibaba 2020 GPU trace data.
+        """The class of managing the Alibaba 2020 GPU trace data.
 
         Args:
             target_dir (str): The directory to store the trace data.
@@ -66,14 +66,14 @@ class Alibaba2020TraceData:
         return self._data_name["metric"]
 
     def _init(self):
-        """ prepare the target directory and cache directory."""
+        """prepare the target directory and cache directory."""
         if not os.path.exists(self.target_dir):
             os.makedirs(self.target_dir, exist_ok=True)
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir, exist_ok=True)
 
     def _build_2020_trace_link(self, data_name: str) -> str:
-        """ Build the link to download the trace data.
+        """Build the link to download the trace data.
 
         Args:
             data_name (str): The name of the trace data.
@@ -88,8 +88,8 @@ class Alibaba2020TraceData:
         return f"{_base_link}/{data_name}.tar.gz"
 
     def _build_2020_trace_header_link(self, data_name: str):
-        """ Build the link to download the header file of the trace data.
-        
+        """Build the link to download the header file of the trace data.
+
         Args:
             data_name (str): The name of the trace data.
 
@@ -103,7 +103,7 @@ class Alibaba2020TraceData:
         return f"{_base_link}/{data_name}.header"
 
     def _build_cache_file(self, data_type: str) -> str:
-        """ Build the cache file path.
+        """Build the cache file path.
 
         Args:
             data_type (str): The type of the data.
@@ -117,7 +117,7 @@ class Alibaba2020TraceData:
         return os.path.join(dir_path, file_name)
 
     def _store_cache(self, data_type: str, data: pd.DataFrame, cache_file: bool = True):
-        """ Store the data into cache file or memory.
+        """Store the data into cache file or memory.
 
         Args:
             data_type (str): The type of the data.
@@ -137,7 +137,7 @@ class Alibaba2020TraceData:
         self._cache[data_type] = data
 
     def _get_cache(self, data_type: str) -> pd.DataFrame:
-        """ Get the cache data from memory or cache file.
+        """Get the cache data from memory or cache file.
 
         Args:
             data_type (str): The type of the data.
@@ -159,7 +159,7 @@ class Alibaba2020TraceData:
         return _cache
 
     def download_single_trace_data(self, data_name: str, force=False):
-        """ Download a single trace data.
+        """Download a single trace data.
 
         Args:
             data_name (str): The name of the trace data.
@@ -186,12 +186,12 @@ class Alibaba2020TraceData:
         self.download(header_url, os.path.join(self.target_dir, header_file_name))
 
     def download_all_trace_data(self):
-        """ Download all trace data."""
+        """Download all trace data."""
         for data_name in self._data_name.values():
             self.download_single_trace_data(data_name)
 
     def download(self, url, targe_file, force=False):
-        """ Download the file from the url.
+        """Download the file from the url.
 
         Args:
             url (str): The url to download the file.
@@ -208,12 +208,12 @@ class Alibaba2020TraceData:
             file.write(response.content)
 
     def extract(self, tar_file, target_dir):
-        """ Extract the tar file to the target directory."""
+        """Extract the tar file to the target directory."""
         with tarfile.open(tar_file) as tar:
             tar.extractall(target_dir)
 
     def get_df(self, data_type, force=False) -> pd.DataFrame:
-        """ Get the data frame of the trace data.
+        """Get the data frame of the trace data.
 
         Args:
             data_type (str): The type of the data.
@@ -234,7 +234,9 @@ class Alibaba2020TraceData:
         elif data_type == "time_series":
             _func = self._get_time_series_data
         else:
-            raise ValueError(f"Data type {data_type} is not valid. Only support {self._data_name.keys()} and 'merged' and 'modified_merged'.")
+            raise ValueError(
+                f"Data type {data_type} is not valid. Only support {self._data_name.keys()} and 'merged' and 'modified_merged'."
+            )
 
         _cache = self._get_cache(data_type)
         if force or _cache is None:
@@ -248,7 +250,7 @@ class Alibaba2020TraceData:
         return self._get_cache(data_type)
 
     def _get_df_from_csv(self, data_name: str) -> pd.DataFrame:
-        """ Get the data frame from the csv file.
+        """Get the data frame from the csv file.
 
         Args:
             data_name (str): The name of the data.
@@ -265,9 +267,17 @@ class Alibaba2020TraceData:
         with open(header_file, "r") as f:
             header = f.read().replace("\n", "").split(",")
         df = pd.read_csv(csv_file, header=None, names=header)
-        if data_name in [self._data_name["job"], self._data_name["task"], self._data_name["instance"]]:
-            df["start_date"] = df["start_time"].apply(pd.Timestamp, unit='s', tz='Asia/Shanghai')
-            df["end_date"] = df["end_time"].apply(pd.Timestamp, unit='s', tz='Asia/Shanghai')
+        if data_name in [
+            self._data_name["job"],
+            self._data_name["task"],
+            self._data_name["instance"],
+        ]:
+            df["start_date"] = df["start_time"].apply(
+                pd.Timestamp, unit="s", tz="Asia/Shanghai"
+            )
+            df["end_date"] = df["end_time"].apply(
+                pd.Timestamp, unit="s", tz="Asia/Shanghai"
+            )
         return df
 
     def _get_merged_df(self) -> pd.DataFrame:
@@ -284,29 +294,43 @@ class Alibaba2020TraceData:
 
         print("Merging dataframes...")
         print("Merging job and task...")
-        merged_df = job_df.merge(task_df, on='job_name', suffixes=('', '_task'))
+        merged_df = job_df.merge(task_df, on="job_name", suffixes=("", "_task"))
         print("Merging job and task and instance...")
-        merged_df = merged_df.merge(instance_df, on=["job_name", 'task_name'], suffixes=('', '_instance'))
+        merged_df = merged_df.merge(
+            instance_df, on=["job_name", "task_name"], suffixes=("", "_instance")
+        )
         print("Merging job and task and instance and machine...")
-        merged_df = merged_df.merge(machine_df, on='machine', how='left', suffixes=('', '_machine'))
+        merged_df = merged_df.merge(
+            machine_df, on="machine", how="left", suffixes=("", "_machine")
+        )
         print("Merging job and task and instance and machine and sensor...")
-        merged_df = merged_df.merge(sensor_df, on='worker_name', how='left', suffixes=('', '_sensor'))
-        merged_df = merged_df.merge(group_df, on=['inst_id', "user"], how='left', suffixes=('', '_group'))
+        merged_df = merged_df.merge(
+            sensor_df, on="worker_name", how="left", suffixes=("", "_sensor")
+        )
+        merged_df = merged_df.merge(
+            group_df, on=["inst_id", "user"], how="left", suffixes=("", "_group")
+        )
         merged_df.drop(
             columns=[
-                'inst_id_instance',
-                'gpu_type_machine',
+                "inst_id_instance",
+                "gpu_type_machine",
                 "job_name_sensor",
                 "task_name_sensor",
                 "inst_id_sensor",
                 "machine_sensor",
             ],
-            inplace=True
+            inplace=True,
         )
         merged_df["run_time"] = merged_df["end_time"] - merged_df["start_time"]
-        merged_df["wait_time"] = merged_df["start_time_instance"] - merged_df["start_time"]
-        merged_df["hours"] = merged_df.start_date.apply(lambda d: d.dayofyear * 24 + d.hour)
-        merged_df["end_hours"] = merged_df.end_date.apply(lambda d: d.dayofyear * 24 + d.hour)
+        merged_df["wait_time"] = (
+            merged_df["start_time_instance"] - merged_df["start_time"]
+        )
+        merged_df["hours"] = merged_df.start_date.apply(
+            lambda d: d.dayofyear * 24 + d.hour
+        )
+        merged_df["end_hours"] = merged_df.end_date.apply(
+            lambda d: d.dayofyear * 24 + d.hour
+        )
         # imitate the author's method to filter the data
         # original data has tons of rubbishs before 600 hours
         merged_df = merged_df.query(f"hours >= {self._offset}")
@@ -316,34 +340,107 @@ class Alibaba2020TraceData:
         merged = self.get_df("merged").copy()
         # Fill the missing end_time and end_date when the status is "Running"
         print("Fill end_time and end_date when the status is 'Running'...")
-        max_time = merged['end_time'].max()
+        max_time = merged["end_time"].max()
         max_date = merged["end_date"].max()
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_time"] = max_time
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_date"] = max_date
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_date_task"] = max_date
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_time_task"] = max_time
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_date_instance"] = max_date
-        merged.loc[(merged.status == "Running") & (merged.status_task == "Running") & (merged.status_instance == "Running"), "end_time_instance"] = max_time
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_time",
+        ] = max_time
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_date",
+        ] = max_date
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_date_task",
+        ] = max_date
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_time_task",
+        ] = max_time
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_date_instance",
+        ] = max_date
+        merged.loc[
+            (merged.status == "Running")
+            & (merged.status_task == "Running")
+            & (merged.status_instance == "Running"),
+            "end_time_instance",
+        ] = max_time
         print("Fill missing values...")
         # Drop all rows which is in waiting status and the has a value in end_time
         # The end_time should be NaN when the status is "Waiting"
         merged = merged[~((merged.status == "Waiting") & pd.notna(merged.end_time))]
         # fill the missing end_time and end_date
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_date_instance), "end_date"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_date_instance), "end_date_instance"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_date_task), "end_date"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_date_task), "end_date_task"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_date_instance), "end_date"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_date_instance), "start_date_instance"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_date_task), "end_date"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_date_task), "start_date_task"]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_date_instance), "end_date"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_date_instance),
+            "end_date_instance",
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_date_task), "end_date"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_date_task), "end_date_task"
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_date_instance),
+            "end_date",
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_date_instance),
+            "start_date_instance",
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_date_task), "end_date"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_date_task),
+            "start_date_task",
+        ]
 
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_time_instance), "end_time"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_time_instance), "end_time_instance"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_time_task), "end_time"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.end_time_task), "end_time_task"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_time_instance), "end_time"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_time_instance), "start_time_instance"]
-        merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_time_task), "end_time"] = merged.loc[merged.end_date.isnull() & pd.notnull(merged.start_time_task), "start_time_task"]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_time_instance), "end_time"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_time_instance),
+            "end_time_instance",
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_time_task), "end_time"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.end_time_task), "end_time_task"
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_time_instance),
+            "end_time",
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_time_instance),
+            "start_time_instance",
+        ]
+        merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_time_task), "end_time"
+        ] = merged.loc[
+            merged.end_date.isnull() & pd.notnull(merged.start_time_task),
+            "start_time_task",
+        ]
         print("Calculating run time and wait time...")
         merged["run_time"] = merged["end_time"] - merged["start_time"]
         merged["wait_time"] = merged["start_time_instance"] - merged["start_time"]
         print("Recalculate wait time when the status is 'Interrupted'...")
         # Re-calculate the wait time when the status is "Interrupted"
-        merged.loc[merged.status_instance == "Interrupted", "wait_time"] = merged.loc[merged.status_instance == "Interrupted", "start_time_task"] - merged.loc[merged.status_instance == "Interrupted", "start_time"]
+        merged.loc[merged.status_instance == "Interrupted", "wait_time"] = (
+            merged.loc[merged.status_instance == "Interrupted", "start_time_task"]
+            - merged.loc[merged.status_instance == "Interrupted", "start_time"]
+        )
         print("Fill missing values...")
         # Calculate the pure run time, which is the time that the job is actually running without waiting
         merged["pure_run_time"] = merged["run_time"] - merged["wait_time"]
@@ -368,7 +465,7 @@ class Alibaba2020TraceData:
                 "plan_gpu",
                 "plan_cpu",
                 "plan_mem",
-                "gpu_name"
+                "gpu_name",
             ]
         ]
         # new_data = new_data[~(new_data.status == "Waiting")]
@@ -420,12 +517,15 @@ class Alibaba2020TraceData:
         # merged_df = merged_df.merge(cpu_counts_df, on="index", how="left")
         # merged_df = merged_df.merge(memory_counts_df, on="index", how="left")
 
-
         # Filter out all rows that are in waiting status
-        new_data = new_data[~new_data["status"].isin(["Waiting", "status_task", "status_instance"])]
+        new_data = new_data[
+            ~new_data["status"].isin(["Waiting", "status_task", "status_instance"])
+        ]
 
         # Set the time range
-        time_range = pd.date_range(new_data["start_date"].min(), new_data["end_date"].max(), freq="h").strftime("%Y-%m-%d %H:00:00")
+        time_range = pd.date_range(
+            new_data["start_date"].min(), new_data["end_date"].max(), freq="h"
+        ).strftime("%Y-%m-%d %H:00:00")
         index_df = pd.DataFrame(index=time_range)
 
         # 初始化计数列
@@ -448,17 +548,23 @@ class Alibaba2020TraceData:
             if pd.isnull(end_date):
                 end_date = row["end_date"]
 
-            q_time_range = pd.date_range(start_date, end_date, freq="h").strftime("%Y-%m-%d %H:00:00")
+            q_time_range = pd.date_range(start_date, end_date, freq="h").strftime(
+                "%Y-%m-%d %H:00:00"
+            )
             index_df.loc[q_time_range, "queue"] += 1
 
             if pd.notnull(row["start_date_instance"]):
                 # The resources are only allocated when the instance is running
-                g_time_range = pd.date_range(row["start_date_instance"], row["end_date"], freq="h").strftime("%Y-%m-%d %H:00:00")
+                g_time_range = pd.date_range(
+                    row["start_date_instance"], row["end_date"], freq="h"
+                ).strftime("%Y-%m-%d %H:00:00")
                 if pd.notnull(row["gpu_name"]):
                     if pd.isnull(row["plan_gpu"]):
                         gpu_increment = 100
                     else:
-                        gpu_increment = 100 if row["plan_gpu"] >= 100 else row["plan_gpu"]
+                        gpu_increment = (
+                            100 if row["plan_gpu"] >= 100 else row["plan_gpu"]
+                        )
                 else:
                     gpu_increment = 0
                 index_df.loc[g_time_range, "gpu_counts"] += gpu_increment
@@ -466,10 +572,6 @@ class Alibaba2020TraceData:
                 index_df.loc[g_time_range, "memory_counts"] += row.get("plan_mem", 0)
                 index_df.loc[g_time_range, "running"] += 1
 
-        index_df = index_df.reset_index().rename(columns={'index': 'time'})
+        index_df = index_df.reset_index().rename(columns={"index": "time"})
         index_df["time"] = pd.to_datetime(index_df["time"])
         return index_df
-
-
-
-

@@ -37,10 +37,14 @@ def time_now(iso8601: bool = True, format: str = "%Y%m%d-%H%M%S") -> str:
         str: the time in expected format
 
     """
-    return datetime_converter(datetime.datetime.utcnow(), iso8601=iso8601, format=format)
+    return datetime_converter(
+        datetime.datetime.utcnow(), iso8601=iso8601, format=format
+    )
 
 
-def timestamp_converter(timestamp: int, iso8601: bool = True, format: str = "%Y%m%d-%H%M%S") -> str:
+def timestamp_converter(
+    timestamp: int, iso8601: bool = True, format: str = "%Y%m%d-%H%M%S"
+) -> str:
     """Convert unix timestamp to iso8601 format or custom format.
 
     Args:
@@ -51,10 +55,14 @@ def timestamp_converter(timestamp: int, iso8601: bool = True, format: str = "%Y%
     Returns:
         str: the time in expected format
     """
-    return datetime_converter(datetime.datetime.utcfromtimestamp(timestamp), iso8601=iso8601, format=format)
+    return datetime_converter(
+        datetime.datetime.utcfromtimestamp(timestamp), iso8601=iso8601, format=format
+    )
 
 
-def datetime_converter(time: datetime.datetime, iso8601: bool = True, format: str = "%Y%m%d-%H%M%S") -> str:
+def datetime_converter(
+    time: datetime.datetime, iso8601: bool = True, format: str = "%Y%m%d-%H%M%S"
+) -> str:
     """COnvert `datetime.datetime` object to iso8601 format or custom format.
 
     Args:
@@ -105,9 +113,17 @@ def filter_files(part_file_name: str, directory: str, fuzz: bool = True) -> List
     """
     file_paths = fetch_file_paths(directory)
     if fuzz:
-        return [str(file_path) for file_path in file_paths if part_file_name in os.path.basename(str(file_path))]
+        return [
+            str(file_path)
+            for file_path in file_paths
+            if part_file_name in os.path.basename(str(file_path))
+        ]
     else:
-        return [str(file_path) for file_path in file_paths if part_file_name == os.path.basename(str(file_path))]
+        return [
+            str(file_path)
+            for file_path in file_paths
+            if part_file_name == os.path.basename(str(file_path))
+        ]
 
 
 def list_directories(path: str) -> Optional[List[str]]:
@@ -127,7 +143,9 @@ def list_directories(path: str) -> Optional[List[str]]:
 
     # List all entries in the path
     entries = os.listdir(path)
-    directories = [entry for entry in entries if os.path.isdir(os.path.join(path, entry))]
+    directories = [
+        entry for entry in entries if os.path.isdir(os.path.join(path, entry))
+    ]
 
     return directories
 

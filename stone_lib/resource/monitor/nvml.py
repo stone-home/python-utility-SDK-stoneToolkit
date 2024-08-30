@@ -12,9 +12,7 @@ class GPUMetric:
         self.handle = nvml.nvmlDeviceGetHandleByIndex(self.index)
 
     def __str__(self):
-        return (f"Name: {self.name}\n"
-                f"Arch: {self.arch}\n"
-                f"UUID: {self.uuid}\n")
+        return f"Name: {self.name}\n" f"Arch: {self.arch}\n" f"UUID: {self.uuid}\n"
 
     @property
     def name(self) -> str:
@@ -37,7 +35,7 @@ class GPUMetric:
             nvml.NVML_DEVICE_ARCH_TURING: "TURING",
             nvml.NVML_DEVICE_ARCH_AMPERE: "AMPERE",
             nvml.NVML_DEVICE_ARCH_ADA: "ADA",
-            nvml.NVML_DEVICE_ARCH_HOPPER: "HOPPER"
+            nvml.NVML_DEVICE_ARCH_HOPPER: "HOPPER",
         }
         return arch_list.get(self._call_nvml("nvmlDeviceGetArchitecture"), None)
 
@@ -51,7 +49,9 @@ class GPUMetric:
                 result = None
             else:
                 logger.error(f"Function {func_name} failed with error: {e}")
-                raise RuntimeError(f"Function {func_name} failed with error: {e}") from e
+                raise RuntimeError(
+                    f"Function {func_name} failed with error: {e}"
+                ) from e
         except Exception as e:
             logger.error(f"Function {func_name} failed with error: {e}")
             raise RuntimeError(f"Function {func_name} failed with error: {e}") from e
@@ -108,7 +108,7 @@ class GPUMetric:
             "total": memory.total,
             "free": memory.free,
             "used": memory.used,
-            "utilisation": round((memory.used / memory.total) * 100, 2)
+            "utilisation": round((memory.used / memory.total) * 100, 2),
         }
 
     def get_temperature(self):
@@ -200,7 +200,7 @@ class HostGPUs:
         return {i: self._gpus[i].to_json() for i in self._gpus}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     host_gpus = HostGPUs()
     print(host_gpus.to_json())
     nvml.nvmlShutdown()

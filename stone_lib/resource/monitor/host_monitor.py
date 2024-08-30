@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class HostMetrics:
-    def __init__(self, interval: int = 10, gpu_enable: bool = True, uuid: Optional[str] = None):
+    def __init__(
+        self, interval: int = 10, gpu_enable: bool = True, uuid: Optional[str] = None
+    ):
         """A host metrics class to monitor the host system
 
         Args:
@@ -23,16 +25,19 @@ class HostMetrics:
         self.net = EthernetMonitor()
         if gpu_enable:
             from .nvml import HostGPUs
+
             self.gpu = HostGPUs()
             logger.info(f"[{self._id}]GPU monitoring is enabled.")
         else:
             self.gpu = None
         logger.info(f"[{self._id}]GPU monitoring is disabled.")
         # convert to seconds
-        self._interval = interval/1000
+        self._interval = interval / 1000
         self._count = 0
         self._records = []
-        logger.info(f"[{self._id}]Set the interval to monitor the system: {interval} ms")
+        logger.info(
+            f"[{self._id}]Set the interval to monitor the system: {interval} ms"
+        )
 
     @property
     def interval(self):
@@ -46,14 +51,16 @@ class HostMetrics:
             value (int): The interval to monitor the system, in ms
 
         """
-        logger.warning(f"[{self._id}]Change the interval to monitor the system: {value} ms")
+        logger.warning(
+            f"[{self._id}]Change the interval to monitor the system: {value} ms"
+        )
         self._interval = value / 1000
 
     def get_records(self) -> List[dict]:
         return self._records
 
     def record(self):
-        if self._count % (1/self.interval) == 0:
+        if self._count % (1 / self.interval) == 0:
             logger.info(f"[{self._id}]Record the system metrics at {time.time_ns()}")
         _cpu_time_p = self.cgroup.cpu_usage()
         _ethernet_p = self.net.get_all_interfaces_data()
@@ -67,22 +74,30 @@ class HostMetrics:
             _net_p = _ethernet_p[interface]
             _net_c = _ethernet_c[interface]
             _utils = {
-                "rx": round(((_net_c.r_bytes - _net_p.r_bytes)/1024/1024) / interval_in_sec, 2),
-                "tx": round(((_net_c.t_bytes - _net_p.t_bytes)/1024/1024) / interval_in_sec, 2)
+                "rx": round(
+                    ((_net_c.r_bytes - _net_p.r_bytes) / 1024 / 1024) / interval_in_sec,
+                    2,
+                ),
+                "tx": round(
+                    ((_net_c.t_bytes - _net_p.t_bytes) / 1024 / 1024) / interval_in_sec,
+                    2,
+                ),
             }
             _net_utils[interface] = _utils
 
         _max_mem = self.cgroup.memory_max()
         if _max_mem > 0:
-            _max_mem = round(_max_mem/1024/1024, 2)  # convert to MB
+            _max_mem = round(_max_mem / 1024 / 1024, 2)  # convert to MB
 
         _metric = {
-            "timestamp": round(time.time_ns()/1000000, 2),  # convert to ms
+            "timestamp": round(time.time_ns() / 1000000, 2),  # convert to ms
             "cpu": {
-                "utilisation":  round((_cpu_time_ms / self.interval) * 100, 2), # convert to percentage
+                "utilisation": round(
+                    (_cpu_time_ms / self.interval) * 100, 2
+                ),  # convert to percentage
             },
             "memory": {
-                "usage": self.cgroup.memory_usage()/1024/1024,  # convert to MB,
+                "usage": self.cgroup.memory_usage() / 1024 / 1024,  # convert to MB,
                 "max": _max_mem,
             },
             "network": _net_utils,
@@ -134,8 +149,10 @@ class HostMetrics:
         _data = {
             "interval": self.interval * 1000,  # unit: ms
             "num": self._count,
-            "makespan": round((_records[-1]["timestamp"] - _records[0]["timestamp"]), 2),  # unit: ms
-            "records": _records
+            "makespan": round(
+                (_records[-1]["timestamp"] - _records[0]["timestamp"]), 2
+            ),  # unit: ms
+            "records": _records,
         }
         return _data
 
@@ -181,28 +198,34 @@ class MonitorThreading:
         kwargs["uuid"] = self.name
         self.thread = threading.Thread(target=self.func, kwargs=kwargs)
         self.thread.start()
-        logger.info(f"Start monitoring thread: {self.name}, thread id: {self.thread.ident}")
+        logger.info(
+            f"Start monitoring thread: {self.name}, thread id: {self.thread.ident}"
+        )
 
     def stop(self):
         if self.thread is not None:
-            logger.info(f"Stop monitoring thread: {self.name}, thread id: {self.thread.ident}")
+            logger.info(
+                f"Stop monitoring thread: {self.name}, thread id: {self.thread.ident}"
+            )
             self.stop_flat.set()
 
 
 class HostMonitor:
     def __init__(
-            self,
-            interval: int = 10,
-            gpu_enable: bool = True,
-            default_data_dir: Optional[str] = None,
-            default_file_name: Optional[str] = None
+        self,
+        interval: int = 10,
+        gpu_enable: bool = True,
+        default_data_dir: Optional[str] = None,
+        default_file_name: Optional[str] = None,
     ):
         self._interval: int = interval
         self._gpu_enable: bool = gpu_enable
         self._thread: Dict[str, MonitorThreading] = {}
         self._stopping_thread: Dict[str, MonitorThreading] = {}
         self._default_data_dir = default_data_dir or "/tmp"
-        self._default_file_name = default_file_name or f"host_monitor_{str(uuid.uuid4())[:10]}"
+        self._default_file_name = (
+            default_file_name or f"host_monitor_{str(uuid.uuid4())[:10]}"
+        )
 
     def __enter__(self):
         self.start_new_monitor("default")
@@ -212,12 +235,17 @@ class HostMonitor:
         time.sleep(0.5)
         self.cleanup()
 
-    def start_new_monitor(self, monitor_name: str, data_dir: Optional[str] = None, file_name: Optional[str] = None):
+    def start_new_monitor(
+        self,
+        monitor_name: str,
+        data_dir: Optional[str] = None,
+        file_name: Optional[str] = None,
+    ):
         kwargs = {
             "dir": data_dir or self._default_data_dir,
             "file_name": file_name or self._default_file_name,
             "interval": self._interval,
-            "gpu_enable": self._gpu_enable
+            "gpu_enable": self._gpu_enable,
         }
         _thread = MonitorThreading(temp="monitor", name=monitor_name)
         _thread.run(**kwargs)
@@ -227,7 +255,9 @@ class HostMonitor:
         _thread = self._thread.get(monitor_name)
         del self._thread[monitor_name]
         self._stopping_thread[monitor_name] = _thread
-        logger.info(f"Stop monitoring thread: {monitor_name}, thread id: {_thread.thread.ident}. Add to stopping list.")
+        logger.info(
+            f"Stop monitoring thread: {monitor_name}, thread id: {_thread.thread.ident}. Add to stopping list."
+        )
         logger.info(f"Current running threads: {list(self._thread.keys())}")
         logger.info(f"Current stopping threads: {list(self._stopping_thread.keys())}")
         _thread.stop()
@@ -245,17 +275,19 @@ class HostMonitor:
             for monitor_name in self._stopping_thread.keys():
                 _thread = self._stopping_thread[monitor_name]
                 if _thread.is_alive:
-                    logger.warning(f"Wait for stopping thread: {monitor_name}, thread id: {_thread.thread.ident}")
+                    logger.warning(
+                        f"Wait for stopping thread: {monitor_name}, thread id: {_thread.thread.ident}"
+                    )
                     _thread.stop()
                     _thread.thread.join()
 
 
 def monitor(
-        interval: int = 100,
-        gpu_enable: bool = False,
-        monitor_name: str = "host_monitor",
-        data_dir: str = "/tmp",
-        file_name: str = None
+    interval: int = 100,
+    gpu_enable: bool = False,
+    monitor_name: str = "host_monitor",
+    data_dir: str = "/tmp",
+    file_name: str = None,
 ):
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -263,7 +295,7 @@ def monitor(
                 "dir": data_dir,
                 "file_name": file_name or f"host_monitor_{str(uuid.uuid4())[:10]}",
                 "interval": interval,
-                "gpu_enable": gpu_enable
+                "gpu_enable": gpu_enable,
             }
             _thread = MonitorThreading(temp="monitor", name=monitor_name)
             _thread.run(**monitor_params)
@@ -271,5 +303,7 @@ def monitor(
             _thread.stop()
             _thread.thread.join()
             return result
+
         return wrapper
+
     return decorator

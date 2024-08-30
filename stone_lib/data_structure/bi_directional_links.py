@@ -5,7 +5,7 @@ import uuid
 
 class BiDirection:
     def __init__(self, value: Any):
-        """ Create a bi-directional link node.
+        """Create a bi-directional link node.
 
         Args:
             value (Any): The value of the node.
@@ -32,7 +32,7 @@ class BiDirection:
         return self._id
 
     def insert_after(self, node: BiDirection):
-        """ Insert a node after the current node.
+        """Insert a node after the current node.
 
         Args:
             node (BiDirection): The node to be inserted.
@@ -47,7 +47,7 @@ class BiDirection:
         self._next = node
 
     def insert_before(self, node: BiDirection):
-        """ Insert a node before the current node.
+        """Insert a node before the current node.
 
         Args:
             node (BiDirection): The node to be inserted.
@@ -62,7 +62,7 @@ class BiDirection:
         self._prev = node
 
     def remove(self):
-        """ Remove the current node.
+        """Remove the current node.
 
         Returns:
             None
@@ -73,7 +73,7 @@ class BiDirection:
         self._next = self
 
     def search(self, value: Any) -> Optional[BiDirection]:
-        """ Search a node by value.
+        """Search a node by value.
 
         Args:
             value (Any): The value to be searched.
@@ -87,14 +87,13 @@ class BiDirection:
         return node if node.value == value else None
 
     def __eq__(self, other: BiDirection) -> bool:
-        """ Check if two nodes are equal."""
+        """Check if two nodes are equal."""
         return self.id == other.id
 
     def __str__(self):
-        """ Return the string representation of the node."""
+        """Return the string representation of the node."""
         return str(self.value)
 
     def __repr__(self):
-        """ Return the string representation of the node."""
-        return f'BiDirection({self.value})'
-
+        """Return the string representation of the node."""
+        return f"BiDirection({self.value})"

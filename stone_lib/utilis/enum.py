@@ -4,6 +4,7 @@ from typing import List, Optional
 
 class EnumManipulator:
     """A class to manipulate Enum object."""
+
     def __init__(self, input_enum: EnumMeta):
         """initialize the class.
 

@@ -91,7 +91,7 @@ class EthernetMetrics:
                 "fifo": self.r_fifo,
                 "frame": self.r_frame,
                 "compressed": self.r_compressed,
-                "multicast": self.r_multicast
+                "multicast": self.r_multicast,
             },
             "transmit": {
                 "bytes": self.t_bytes,
@@ -101,8 +101,8 @@ class EthernetMetrics:
                 "fifo": self.t_fifo,
                 "colls": self.t_colls,
                 "carrier": self.t_carrier,
-                "compressed": self.t_compressed
-            }
+                "compressed": self.t_compressed,
+            },
         }
 
 
@@ -190,7 +190,9 @@ class EthernetMonitor:
         if interface in self.interfaces:
             return _data[interface]
         else:
-            raise KeyError(f"Interface {interface} not found, only {self.interfaces} are available")
+            raise KeyError(
+                f"Interface {interface} not found, only {self.interfaces} are available"
+            )
 
     def to_json(self) -> Dict[str, Dict]:
         """Convert the data to json

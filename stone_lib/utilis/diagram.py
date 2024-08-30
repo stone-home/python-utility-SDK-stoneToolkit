@@ -1,5 +1,7 @@
 import os
 import subprocess
+import io
+from typing import Union
 from .utilis import temp_dir_with_specific_path
 
 
@@ -12,12 +14,15 @@ class FlameGraph:
     def _download(self):
         """Download flamegraph.pl from the internet."""
         import urllib.request
+
         print(f"Downloading flamegraph.pl to: {self._script_file}")
         urllib.request.urlretrieve(
-            'https://raw.githubusercontent.com/brendangregg/FlameGraph/master/flamegraph.pl', self._script_file)
+            "https://raw.githubusercontent.com/brendangregg/FlameGraph/master/flamegraph.pl",
+            self._script_file,
+        )
 
-    def generate_flame_graph(self, flamegraph_lines: str):
-        """ Generate a flame graph from the input flamegraph lines.
+    def generate_flame_graph(self, flamegraph_lines: Union[str, io.StringIO]):
+        """Generate a flame graph from the input flamegraph lines.
 
         Args:
             flamegraph_lines (str): flamegraph lines
@@ -29,8 +34,10 @@ class FlameGraph:
         flamegraph_script = self._script_file
         if not os.path.isfile(flamegraph_script):
             self._download()
-        args = ["perl", flamegraph_script, '--countname', 'bytes', '--flamechart', "-i"]
-        p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding='utf-8')
+        args = ["perl", flamegraph_script, "--countname", "bytes", "--flamechart", "-i"]
+        p = subprocess.Popen(
+            args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding="utf-8"
+        )
         assert p.stdin is not None
         assert p.stdout is not None
         p.stdin.write(flamegraph_lines)
@@ -42,7 +49,7 @@ class FlameGraph:
         return result
 
     def generate_flame_graph_from_file(self, file_path: str):
-        """ Generate a flame graph from the input file.
+        """Generate a flame graph from the input file.
 
         Args:
             file_path (str): the file path
@@ -51,6 +58,6 @@ class FlameGraph:
             str: flame graph
 
         """
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             flame_lines = file.read()
         return self.generate_flame_graph(flame_lines)

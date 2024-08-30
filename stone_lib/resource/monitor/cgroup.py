@@ -20,7 +20,9 @@ class _CGroupAbc(ABC):
         """
         return self._cgroup_dir
 
-    def _get_cgroup_data(self, file_name: str, key: Optional[str] = None, index: Optional[int] = None) -> Optional[str]:
+    def _get_cgroup_data(
+        self, file_name: str, key: Optional[str] = None, index: Optional[int] = None
+    ) -> Optional[str]:
         """Get the data from cgroup file by key and index
 
         Args:
@@ -34,7 +36,9 @@ class _CGroupAbc(ABC):
         """
         _index = index or 1
         _file_path = os.path.join(self.cgroup_dir, file_name)
-        logger.debug(f"Get data from file {_file_path} with key {key} and index {_index}")
+        logger.debug(
+            f"Get data from file {_file_path} with key {key} and index {_index}"
+        )
         with open(_file_path, "r") as f:
             _result = None
             if key is not None:
@@ -172,16 +176,13 @@ class CGroupMonitor:
             "cpu": {
                 "usage": self.cpu_usage(),
                 "system": self.cpu_system(),
-                "user": self.cpu_user()
+                "user": self.cpu_user(),
             },
-            "memory": {
-                "usage": self.memory_usage(),
-                "max": self.memory_max()
-            }
+            "memory": {"usage": self.memory_usage(), "max": self.memory_max()},
         }
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cgroup = CGroupMonitor()
     print(cgroup.cpu_usage())
     print(cgroup.cpu_system())

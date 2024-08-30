@@ -78,4 +78,3 @@ class Note:
             with open(self._path, "w+", encoding="utf-8") as f:
                 f.write(self._metadata.to_string())
                 f.write(self._body.to_string())
-
