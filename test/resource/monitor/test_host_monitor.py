@@ -1,16 +1,13 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open, Mock
-from stone_lib.resource.monitor.host_monitor import HostMetrics, _Template, MonitorThreading, HostMonitor, threading
+from stone_lib.resource.monitor.host_monitor import (
+    HostMetrics,
+    _Template,
+    MonitorThreading,
+    HostMonitor,
+    threading,
+)
 from stone_lib.resource.monitor.nvml import HostGPUs
-
-
-MonitorModuleRootPath = None
-
-
-@pytest.fixture(scope="session", autouse=True)
-def load_monitor_module_root_path(monitor_package_path):
-    global MonitorModuleRootPath
-    MonitorModuleRootPath = monitor_package_path
 
 
 class TestHostMetrics:
@@ -69,9 +66,15 @@ class TestHostMetrics:
         interval = 10
         gpu_enable = True
         uuid = "test"
-        with patch("stone_lib.resource.monitor.host_monitor.CGroupMonitor", return_value=mock_cg) as mock_cg, \
-                patch("stone_lib.resource.monitor.host_monitor.EthernetMonitor", return_value=mock_eth) as mock_eth, \
-                patch("stone_lib.resource.monitor.nvml.HostGPUs", return_value=mock_gpu) as mock_gpu:
+        with patch(
+            "stone_lib.resource.monitor.host_monitor.CGroupMonitor",
+            return_value=mock_cg,
+        ) as mock_cg, patch(
+            "stone_lib.resource.monitor.host_monitor.EthernetMonitor",
+            return_value=mock_eth,
+        ) as mock_eth, patch(
+            "stone_lib.resource.monitor.nvml.HostGPUs", return_value=mock_gpu
+        ) as mock_gpu:
             return HostMetrics(interval=interval, gpu_enable=gpu_enable, uuid=uuid)
 
     def test_property_interval(self, instance):
@@ -96,7 +99,10 @@ class TestHostMetrics:
         mock_eth_2.t_bytes = 200
 
         instance.net.interfaces = ["eth0"]
-        instance.net.get_all_interfaces_data.side_effect = [{"eth0": mock_eth_1}, {"eth0": mock_eth_2}]
+        instance.net.get_all_interfaces_data.side_effect = [
+            {"eth0": mock_eth_1},
+            {"eth0": mock_eth_2},
+        ]
 
         instance.cgroup.memory_max.return_value = -1
         instance.cgroup.memory_usage.return_value = 1024 * 1024
@@ -112,17 +118,9 @@ class TestHostMetrics:
             "cpu": {
                 "utilisation": 1000,
             },
-            "memory": {
-                "max": -1,
-                "usage": 1.0
-            },
-            "network": {
-                "eth0": {
-                    "rx": 0,
-                    "tx": 0
-                }
-            },
-            "gpu": {"gpu": "test"}
+            "memory": {"max": -1, "usage": 1.0},
+            "network": {"eth0": {"rx": 0, "tx": 0}},
+            "gpu": {"gpu": "test"},
         }
 
     @patch("stone_lib.resource.monitor.host_monitor.time")
@@ -138,7 +136,10 @@ class TestHostMetrics:
         mock_eth_2.t_bytes = 200
 
         instance.net.interfaces = ["eth0"]
-        instance.net.get_all_interfaces_data.side_effect = [{"eth0": mock_eth_1}, {"eth0": mock_eth_2}]
+        instance.net.get_all_interfaces_data.side_effect = [
+            {"eth0": mock_eth_1},
+            {"eth0": mock_eth_2},
+        ]
 
         instance.cgroup.memory_max.return_value = -1
         instance.cgroup.memory_usage.return_value = 1024 * 1024
@@ -152,17 +153,9 @@ class TestHostMetrics:
             "cpu": {
                 "utilisation": 1000,
             },
-            "memory": {
-                "max": -1,
-                "usage": 1.0
-            },
-            "network": {
-                "eth0": {
-                    "rx": 0,
-                    "tx": 0
-                }
-            },
-            "gpu": {}
+            "memory": {"max": -1, "usage": 1.0},
+            "network": {"eth0": {"rx": 0, "tx": 0}},
+            "gpu": {},
         }
 
     @patch("stone_lib.resource.monitor.host_monitor.time")
@@ -178,7 +171,10 @@ class TestHostMetrics:
         mock_eth_2.t_bytes = 200
 
         instance.net.interfaces = ["eth0"]
-        instance.net.get_all_interfaces_data.side_effect = [{"eth0": mock_eth_1}, {"eth0": mock_eth_2}]
+        instance.net.get_all_interfaces_data.side_effect = [
+            {"eth0": mock_eth_1},
+            {"eth0": mock_eth_2},
+        ]
 
         instance.cgroup.memory_max.return_value = 1024 * 1024
         instance.cgroup.memory_usage.return_value = 1024 * 1024
@@ -192,17 +188,9 @@ class TestHostMetrics:
             "cpu": {
                 "utilisation": 1000,
             },
-            "memory": {
-                "max": 1.0,
-                "usage": 1.0
-            },
-            "network": {
-                "eth0": {
-                    "rx": 0,
-                    "tx": 0
-                }
-            },
-            "gpu": {}
+            "memory": {"max": 1.0, "usage": 1.0},
+            "network": {"eth0": {"rx": 0, "tx": 0}},
+            "gpu": {},
         }
 
     def test_to_json(self, instance):
@@ -211,7 +199,7 @@ class TestHostMetrics:
             "interval": 10,
             "records": [{"timestamp": 100}, {"timestamp": 200}],
             "num": 0,
-            "makespan": 100
+            "makespan": 100,
         }
 
     @patch.object(HostMetrics, "to_json", return_value={"test": "test"})
@@ -241,7 +229,10 @@ class TestMonitorThreading:
         monitor = MonitorThreading()
         assert monitor.is_alive is False
 
-    @patch("stone_lib.resource.monitor.host_monitor.threading.Thread", return_value=MagicMock())
+    @patch(
+        "stone_lib.resource.monitor.host_monitor.threading.Thread",
+        return_value=MagicMock(),
+    )
     def test_run(self, mock_thread):
         monitor = MonitorThreading()
         monitor.run()
@@ -252,7 +243,10 @@ class TestMonitorThreading:
         mock_thread.assert_called_once_with(target=monitor.func, kwargs=kwargs)
         mock_thread.start.called_once()
 
-    @patch("stone_lib.resource.monitor.host_monitor.threading.Thread", return_value=MagicMock())
+    @patch(
+        "stone_lib.resource.monitor.host_monitor.threading.Thread",
+        return_value=MagicMock(),
+    )
     def test_run_with_kwargs(self, mock_thread):
         monitor = MonitorThreading()
         monitor.run(temp="test")
@@ -295,7 +289,7 @@ class TestHostMonitor:
             "dir": "test",
             "file_name": "test",
             "interval": monitor._interval,
-            "gpu_enable": True
+            "gpu_enable": True,
         }
         monitor.start_new_monitor("test", "test", "test")
         mock_monitor_thread.assert_called_once_with(temp="monitor", name="test")

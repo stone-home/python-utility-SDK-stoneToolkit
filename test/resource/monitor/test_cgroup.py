@@ -1,6 +1,11 @@
 import pytest
 from unittest.mock import patch, mock_open, MagicMock
-from stone_lib.resource.monitor.cgroup import _CGroupAbc, CGroupV1, CGroupV2, CGroupMonitor
+from stone_lib.resource.monitor.cgroup import (
+    _CGroupAbc,
+    CGroupV1,
+    CGroupV2,
+    CGroupMonitor,
+)
 
 
 class TestCGroupAbc:
@@ -10,21 +15,31 @@ class TestCGroupAbc:
 
     # Test _get_cgroup_data method logic and parsing
     @patch("os.path.join", return_value="mocked_path")
-    @patch("builtins.open", new_callable=mock_open, read_data="key1 value1\nkey2 value2")
+    @patch(
+        "builtins.open", new_callable=mock_open, read_data="key1 value1\nkey2 value2"
+    )
     def test_get_cgroup_data(self, mock_file, mock_path_join):
         cgroup = CGroupV1("/sys/fs/cgroup/v1")
         result = cgroup._get_cgroup_data("mock_file", "key1")
         assert result == "value1"
 
     @patch("os.path.join", return_value="mocked_path")
-    @patch("builtins.open", new_callable=mock_open, read_data="key1 value1_1 value1_2\nkey2 value2_1 value_2_2")
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="key1 value1_1 value1_2\nkey2 value2_1 value_2_2",
+    )
     def test_get_cgroup_data_with_index(self, mock_file, mock_path_join):
         cgroup = CGroupV1("/sys/fs/cgroup/v1")
         result = cgroup._get_cgroup_data("mock_file", "key1", 2)
         assert result == "value1_2"
 
     @patch("os.path.join", return_value="mocked_path")
-    @patch("builtins.open", new_callable=mock_open, read_data="key1 value1_1 value1_2\nkey2 value2_1 value_2_2")
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="key1 value1_1 value1_2\nkey2 value2_1 value_2_2",
+    )
     def test_get_cgroup_data_with_keyerror(self, mock_file, mock_path_join):
         cgroup = CGroupV1("/sys/fs/cgroup/v1")
         with pytest.raises(KeyError):
@@ -76,7 +91,9 @@ class TestCGroupV1:
 
     def test_memory_max_no_limited(self):
         cgroup = CGroupV1("/sys/fs/cgroup/v1")
-        with patch.object(cgroup, "_get_cgroup_data", return_value="max") as mock_method:
+        with patch.object(
+            cgroup, "_get_cgroup_data", return_value="max"
+        ) as mock_method:
             result = cgroup.memory_max()
             assert result == -1
             mock_method.assert_called_once_with("memory/memory.limit_in_bytes")
@@ -120,7 +137,9 @@ class TestCGroupV2:
 
     def test_memory_max_no_limited(self):
         cgroup = CGroupV2("/sys/fs/cgroup/v2")
-        with patch.object(cgroup, "_get_cgroup_data", return_value="max") as mock_method:
+        with patch.object(
+            cgroup, "_get_cgroup_data", return_value="max"
+        ) as mock_method:
             result = cgroup.memory_max()
             assert result == -1
             mock_method.assert_called_once_with("memory.max")
@@ -155,7 +174,11 @@ class TestCGroupMonitor:
     def test_cpu_usage(self):
         with patch("os.path.exists", return_value=True):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_usage=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_usage=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_usage()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -163,7 +186,11 @@ class TestCGroupMonitor:
     def test_cpu_usage_v1(self):
         with patch("os.path.exists", return_value=False):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_usage=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_usage=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_usage()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -171,7 +198,11 @@ class TestCGroupMonitor:
     def test_cpu_system(self):
         with patch("os.path.exists", return_value=True):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_system=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_system=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_system()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -179,7 +210,11 @@ class TestCGroupMonitor:
     def test_cpu_system_v1(self):
         with patch("os.path.exists", return_value=False):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_system=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_system=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_system()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -187,7 +222,11 @@ class TestCGroupMonitor:
     def test_cpu_user(self):
         with patch("os.path.exists", return_value=True):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_user=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_user=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_user()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -195,7 +234,11 @@ class TestCGroupMonitor:
     def test_cpu_user_v1(self):
         with patch("os.path.exists", return_value=False):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(cpu_user=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(cpu_user=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.cpu_user()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -203,7 +246,11 @@ class TestCGroupMonitor:
     def test_memory_usage(self):
         with patch("os.path.exists", return_value=True):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(memory_usage=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(memory_usage=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.memory_usage()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -211,7 +258,11 @@ class TestCGroupMonitor:
     def test_memory_usage_v1(self):
         with patch("os.path.exists", return_value=False):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(memory_usage=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(memory_usage=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.memory_usage()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -219,7 +270,11 @@ class TestCGroupMonitor:
     def test_memory_max(self):
         with patch("os.path.exists", return_value=True):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(memory_max=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(memory_max=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.memory_max()
                 assert result == 100
                 mock_method.assert_called_once()
@@ -227,7 +282,11 @@ class TestCGroupMonitor:
     def test_memory_max_v1(self):
         with patch("os.path.exists", return_value=False):
             cgroup = CGroupMonitor()
-            with patch.object(cgroup, "_get_cgroup", return_value=MagicMock(memory_max=MagicMock(return_value=100))) as mock_method:
+            with patch.object(
+                cgroup,
+                "_get_cgroup",
+                return_value=MagicMock(memory_max=MagicMock(return_value=100)),
+            ) as mock_method:
                 result = cgroup.memory_max()
                 assert result == 100
                 mock_method.assert_called_once()

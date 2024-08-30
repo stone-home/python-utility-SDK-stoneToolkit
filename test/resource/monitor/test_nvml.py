@@ -6,7 +6,6 @@ from stone_lib.resource.monitor.nvml import GPUMetric, nvml, HostGPUs
 
 
 class TestGPUMetric:
-
     @patch.object(nvml, "nvmlDeviceGetHandleByIndex")
     def test_init(self, mock_get_handler):
         mock_get_handler.return_value = MagicMock()
@@ -90,27 +89,35 @@ class TestGPUMetric:
     @patch.object(nvml, "nvmlDeviceGetComputeRunningProcesses_v3")
     def test_call_nvml(self, mock_get_test_method, instance):
         mock_get_test_method.return_value = "mock_result"
-        assert instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3") == "mock_result"
+        assert (
+            instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3")
+            == "mock_result"
+        )
         mock_get_test_method.assert_called_once_with(instance.handle)
 
     @patch.object(nvml, "nvmlDeviceGetComputeRunningProcesses_v3")
     def test_call_nvml_with_agrs(self, mock_get_test_method, instance):
         mock_get_test_method.return_value = "mock_result"
-        assert instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3", "1", "2") == "mock_result"
+        assert (
+            instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3", "1", "2")
+            == "mock_result"
+        )
         mock_get_test_method.assert_called_once_with(instance.handle, "1", "2")
 
     @patch.object(nvml, "nvmlDeviceGetComputeRunningProcesses_v3")
     def test_call_nvml_with_kwagrs(self, mock_get_test_method, instance):
         mock_get_test_method.return_value = "mock_result"
-        _dict = {
-            "mode": 1,
-            "test": "test"
-        }
-        assert instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3", **_dict) == "mock_result"
+        _dict = {"mode": 1, "test": "test"}
+        assert (
+            instance._call_nvml("nvmlDeviceGetComputeRunningProcesses_v3", **_dict)
+            == "mock_result"
+        )
         mock_get_test_method.assert_called_once_with(instance.handle, **_dict)
 
     @patch.object(nvml, "nvmlDeviceGetComputeRunningProcesses_v3")
-    @pytest.mark.skipif(True, reason="NVML raise error all the time, so we can't test it now")
+    @pytest.mark.skipif(
+        True, reason="NVML raise error all the time, so we can't test it now"
+    )
     def test_call_nvml_with_unsupported_error(self, mock_get_test_method, instance):
         nvml.nvmlInit()
         mock_get_test_method.side_effect = nvml.NVMLError(nvml.NVML_ERROR_NOT_SUPPORTED)
@@ -135,19 +142,25 @@ class TestGPUMetric:
     def test_get_running_processes(self, mock_call_nvml, instance):
         mock_call_nvml.return_value = "mock_result"
         assert instance.get_running_processes(0) == "mock_result"
-        mock_call_nvml.assert_called_once_with("nvmlDeviceGetComputeRunningProcesses_v3")
+        mock_call_nvml.assert_called_once_with(
+            "nvmlDeviceGetComputeRunningProcesses_v3"
+        )
 
     @patch.object(GPUMetric, "_call_nvml")
     def test_get_running_processes_with_mode_1(self, mock_call_nvml, instance):
         mock_call_nvml.return_value = "mock_result"
         assert instance.get_running_processes(1) == "mock_result"
-        mock_call_nvml.assert_called_once_with("nvmlDeviceGetGraphicsRunningProcesses_v3")
+        mock_call_nvml.assert_called_once_with(
+            "nvmlDeviceGetGraphicsRunningProcesses_v3"
+        )
 
     @patch.object(GPUMetric, "_call_nvml")
     def test_get_running_processes_with_mode_3(self, mock_call_nvml, instance):
         mock_call_nvml.return_value = "mock_result"
         assert instance.get_running_processes(3) == "mock_result"
-        mock_call_nvml.assert_called_once_with("nvmlDeviceGetMPSComputeRunningProcesses_v3")
+        mock_call_nvml.assert_called_once_with(
+            "nvmlDeviceGetMPSComputeRunningProcesses_v3"
+        )
 
     @patch.object(GPUMetric, "_call_nvml")
     def test_get_running_processes_with_invalid_mode(self, mock_call_nvml, instance):
@@ -189,7 +202,7 @@ class TestGPUMetric:
             "total": mock_class.total,
             "free": mock_class.free,
             "used": mock_class.used,
-            "utilisation": round((mock_class.used / mock_class.total) * 100, 2)
+            "utilisation": round((mock_class.used / mock_class.total) * 100, 2),
         }
         mock_call_nvml.assert_called_once_with("nvmlDeviceGetMemoryInfo")
 
@@ -197,7 +210,9 @@ class TestGPUMetric:
     def test_get_temperature(self, mock_call_nvml, instance):
         mock_call_nvml.return_value = "mock_result"
         assert instance.get_temperature() == "mock_result"
-        mock_call_nvml.assert_called_once_with("nvmlDeviceGetTemperature", nvml.NVML_TEMPERATURE_GPU)
+        mock_call_nvml.assert_called_once_with(
+            "nvmlDeviceGetTemperature", nvml.NVML_TEMPERATURE_GPU
+        )
 
     @patch.object(GPUMetric, "_call_nvml")
     def test_get_power_usage(self, mock_call_nvml, instance):
@@ -243,8 +258,14 @@ class TestGPUMetric:
     @patch.object(GPUMetric, "get_fan_speed")
     @patch.object(GPUMetric, "get_gpu_utilisation")
     @patch.object(GPUMetric, "get_memory_utilisation")
-    def test_get_info(self, mock_get_memory_utilisation, mock_get_gpu_utilisation,
-                      mock_get_fan_speed, mock_get_temperature, instance):
+    def test_get_info(
+        self,
+        mock_get_memory_utilisation,
+        mock_get_gpu_utilisation,
+        mock_get_fan_speed,
+        mock_get_temperature,
+        instance,
+    ):
         mock_get_memory_utilisation.return_value = "mock_memory_utilisation"
         mock_get_gpu_utilisation.return_value = "mock_gpu_utilisation"
         mock_get_fan_speed.return_value = "mock_fan_speed"
@@ -263,7 +284,13 @@ class TestGPUMetric:
     @patch.object(GPUMetric, "get_graphics_clock")
     @patch.object(GPUMetric, "get_memory_clock")
     @patch.object(GPUMetric, "get_sm_clock")
-    def test_get_clock_info(self, mock_get_sm_clock, mock_get_memory_clock, mock_get_graphics_clock, instance):
+    def test_get_clock_info(
+        self,
+        mock_get_sm_clock,
+        mock_get_memory_clock,
+        mock_get_graphics_clock,
+        instance,
+    ):
         mock_get_graphics_clock.return_value = "mock_graphics_clock"
         mock_get_memory_clock.return_value = "mock_memory_clock"
         mock_get_sm_clock.return_value = "mock_sm_clock"
@@ -279,7 +306,9 @@ class TestGPUMetric:
     @patch.object(GPUMetric, "get_power_usage")
     @patch.object(GPUMetric, "get_power_limit")
     @patch.object(GPUMetric, "get_power_state")
-    def test_get_power_info(self, mock_get_power_state, mock_get_power_limit, mock_get_power_usage, instance):
+    def test_get_power_info(
+        self, mock_get_power_state, mock_get_power_limit, mock_get_power_usage, instance
+    ):
         mock_get_power_state.return_value = "mock_power_state"
         mock_get_power_limit.return_value = "mock_power_limit"
         mock_get_power_usage.return_value = "mock_power_usage"
@@ -322,8 +351,18 @@ class TestGPUMetric:
     @patch.object(GPUMetric, "uuid", new_callable=PropertyMock)
     @patch.object(GPUMetric, "arch", new_callable=PropertyMock)
     @patch.object(GPUMetric, "name", new_callable=PropertyMock)
-    def test_to_json(self, mock_name, mock_arch, mock_uuid, mock_get_clock_info, mock_get_power_info,
-                     mock_get_memory_info, mock_get_pci_info, mock_get_info, instance):
+    def test_to_json(
+        self,
+        mock_name,
+        mock_arch,
+        mock_uuid,
+        mock_get_clock_info,
+        mock_get_power_info,
+        mock_get_memory_info,
+        mock_get_pci_info,
+        mock_get_info,
+        instance,
+    ):
         mock_get_info.return_value = "mock_get_info"
         mock_get_pci_info.return_value = "mock_get_pci_info"
         mock_get_memory_info.return_value = "mock_get_memory_info"
@@ -370,7 +409,9 @@ class TestHostGPUs:
             mock_instance = MagicMock()
             mock_instance.index = i
             mock_instance.append(mock_instance)
-        with patch("stone_lib.resource.monitor.nvml.GPUMetric", side_effect=mock_instance) as mock_gpumetric:
+        with patch(
+            "stone_lib.resource.monitor.nvml.GPUMetric", side_effect=mock_instance
+        ) as mock_gpumetric:
             instance = HostGPUs()
             mock_nvmlInit.assert_called_once()
             mock_nvmlDeviceGetCount.assert_called_once()
@@ -392,11 +433,10 @@ class TestHostGPUs:
     def test_to_json(self, mock_init):
         _data = {
             0: MagicMock(to_json=MagicMock(return_value="mock_result_0")),
-            1: MagicMock(to_json=MagicMock(return_value="mock_result_1"))
+            1: MagicMock(to_json=MagicMock(return_value="mock_result_1")),
         }
         instance = HostGPUs()
-        with patch.object(instance, "_gpus", new_callable=PropertyMock(return_value=_data)) as mock_p_gpus:
-            assert instance.to_json() == {
-                0: "mock_result_0",
-                1: "mock_result_1"
-            }
+        with patch.object(
+            instance, "_gpus", new_callable=PropertyMock(return_value=_data)
+        ) as mock_p_gpus:
+            assert instance.to_json() == {0: "mock_result_0", 1: "mock_result_1"}
