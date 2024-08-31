@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from stone_lib.analyser.pytorch.profiler_analyser import (
+from stone_lib.analyser.pytorch.profiler.stack import (
     CpuInstantNode,
     ModelCallStacks,
     OperatorNode,
@@ -22,6 +22,7 @@ class TestStackLeaf:
         assert stack_leaf.cpu_instants == []
         assert stack_leaf.is_model_layer_trace == False
         assert stack_leaf.max_memory_usage_in_cpu == 0
+        assert stack_leaf.module_name == "fspath>"
 
     def test_flame_string(self, profiler_data__python_function):
         profiler_data__python_function["name"] = "test_profiler_analyser.py:10"
@@ -177,6 +178,33 @@ class TestStackLeaf:
         with pytest.raises(AssertionError):
             leaf.add_operator(stack_node)
 
+    def test_module_name(self, five_node_stack):
+        five_node_stack.parent.parent.value["name"] = "nn.Module: Conv2d_0"
+        five_node_stack.parent.parent.parent.value["name"] = "nn.Module: Conv2d_1"
+        stack_leaf = StackLeaf(five_node_stack)
+        assert stack_leaf.module_name == "Conv2d_0"
+
+    def test_module_name_1(self, five_node_stack):
+        five_node_stack.parent.parent.parent.value["name"] = "nn.Module: Conv3d_0"
+        stack_leaf = StackLeaf(five_node_stack)
+        assert stack_leaf.module_name == "Conv3d_0"
+
+    def test_to_json(self, five_node_stack):
+        five_node_stack.parent.parent.value["name"] = (
+            "torch.nn.functional.py: _call_impl"
+        )
+        five_node_stack.parent.parent.parent.value["name"] = "nn.Module: Conv2d"
+        stack_leaf = StackLeaf(five_node_stack)
+        print(stack_leaf.to_json())
+        assert stack_leaf.to_json() == {
+            "layer": "Conv2d",
+            "start": 4,
+            "end": 5,
+            "duration": 1,
+            "memory_history": [(0, 0)],
+            "id": stack_leaf.leaf_id,
+        }
+
 
 class TestModelCallStacks:
     @pytest.fixture(scope="class")
@@ -191,10 +219,10 @@ class TestModelCallStacks:
     def instant(self, python_function_events):
         return ModelCallStacks(python_function_events)
 
-    @patch.object(ModelCallStacks, "_build_call_stack")
-    def test_preprocessing(self, mock_build_call_stack, python_function_events):
+    @patch.object(ModelCallStacks, "_build_up")
+    def test_preprocessing(self, mock_build_up, python_function_events):
         instant = ModelCallStacks(python_function_events)
-        mock_build_call_stack.assert_called_once()
+        mock_build_up.assert_called_once()
         assert instant._leafs == []
         assert instant._nodes_in_order == {}
 
@@ -230,3 +258,17 @@ class TestModelCallStacks:
         svg_code_1 = instant.flame_graph(True)
         assert isinstance(ET.fromstring(svg_code_1), ET.Element)
         assert len(svg_code) > len(svg_code_1)
+
+    def test_to_json(self, instant):
+        result = instant.to_json()
+        assert isinstance(result, list)
+        for element in result:
+            assert isinstance(element, dict)
+            assert "layer" in element.keys() and isinstance(element["layer"], str)
+            assert "start" in element.keys() and isinstance(element["start"], int)
+            assert "end" in element.keys() and isinstance(element["end"], int)
+            assert "duration" in element.keys() and isinstance(element["duration"], int)
+            assert "memory_history" in element.keys() and isinstance(
+                element["memory_history"], list
+            )
+            assert "id" in element.keys() and isinstance(element["id"], str)

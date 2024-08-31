@@ -1,15 +1,13 @@
-from operator import index
 from unittest.mock import PropertyMock, patch
 
 import pytest
 
-from stone_lib.analyser.pytorch.profiler_node import (
+from stone_lib.analyser.pytorch.profiler.node import (
     CpuInstantNode,
     OperatorNode,
     ProfilerNode,
     StackNode,
 )
-from stone_lib.data_structure import TreeNode
 
 
 class ProfilerNodeStub(ProfilerNode):

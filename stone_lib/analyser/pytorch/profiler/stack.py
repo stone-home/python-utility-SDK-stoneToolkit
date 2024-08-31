@@ -1,8 +1,11 @@
 from typing import Any, Dict, List, Optional, Tuple
-
+from hashlib import sha256
 from stone_lib.utilis.diagram import FlameGraph
-
-from .profiler_node import CpuInstantNode, OperatorNode, StackNode
+from stone_lib.analyser.pytorch.profiler.node import (
+    CpuInstantNode,
+    OperatorNode,
+    StackNode,
+)
 
 
 class StackLeaf:
@@ -33,6 +36,29 @@ class StackLeaf:
         return max(
             [_memory_record[1] for _memory_record in self.memory_change_history()]
         )
+
+    @property
+    def module_name(self) -> str:
+        """
+        Generate a module name for the stack leaf.
+        The module name will be the function name of the leaf if the leaf is not a module layer.
+        The last module lauer name will be extracted from the backward stack if the leaf is a module layer.
+
+        Returns:
+
+        """
+        module_list = [
+            trace for trace in self.leaf.backward_stack() if "nn.Module" in trace.name
+        ]
+        len_module_list = len(module_list)
+        _module_name = f"{self.leaf.namespace_name}: {self.leaf.function_name}"
+        if len_module_list >= 1:
+            _module_name = sorted(module_list, key=lambda x: x.start_time)[-1].name
+        return _module_name.split(":")[-1].strip()
+
+    @property
+    def leaf_id(self) -> str:
+        return sha256(self.flame_string().encode()).hexdigest()
 
     def flame_string(
         self, weight: Optional[int] = None, module_only: bool = False
@@ -93,12 +119,30 @@ class StackLeaf:
         if cpu_instant in self._cpu_instants:
             self._cpu_instants.remove(cpu_instant)
 
+    def to_json(self) -> Dict[str, Any]:
+        """reformat the stack leaf to a json format.
+        The field `id` is used to identify if the stack leaf is the same as another stack leaf
+        based on the flame graph string.
+
+        Returns:
+            Dict[str, Any]: a dictionary contains the information of the stack leaf.
+
+        """
+        return {
+            "layer": self.module_name,
+            "start": self.leaf.start_time,
+            "end": self.leaf.end_time,
+            "duration": self.leaf.duration,
+            "memory_history": self.memory_change_history(),
+            "id": self.leaf_id,
+        }
+
 
 class ModelCallStacks:
     def __init__(self, data: List[Dict[str, Any]]):
         self._leafs: List[StackLeaf] = []
         self._nodes_in_order: Dict[int, StackNode] = {}
-        self._build_call_stack(data)
+        self._build_up(data)
 
     @property
     def leafs(self) -> List[StackLeaf]:
@@ -112,7 +156,7 @@ class ModelCallStacks:
     def nodes_in_order(self) -> Dict[int, StackNode]:
         return self._nodes_in_order
 
-    def _build_call_stack(self, data: List[Dict[str, Any]]):
+    def _build_up(self, data: List[Dict[str, Any]]):
         _nodes_in_order: Dict[int, StackNode] = {}
         _leafs: List[StackLeaf] = []
         for record in data:
@@ -144,3 +188,9 @@ class ModelCallStacks:
         for leaf in _model_leafs:
             flame_strings.write(f"{leaf.flame_string(module_only=module_only)}\n")
         return FlameGraph().generate_flame_graph(flame_strings.getvalue())
+
+    def to_json(self) -> List[Dict[str, Any]]:
+        return sorted(
+            [leaf.to_json() for leaf in self.model_layer_leafs],
+            key=lambda x: x["start"],
+        )

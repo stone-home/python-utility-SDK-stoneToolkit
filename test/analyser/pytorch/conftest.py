@@ -40,6 +40,25 @@ def profiler_data__python_function():
 
 
 @pytest.fixture(scope="function")
+def profiler_data__python_function__module_call():
+    return {
+        "ph": "X",
+        "cat": "python_function",
+        "name": "nn.Module: SimpleCNN_0",
+        "pid": 6632,
+        "tid": 6632,
+        "ts": 1724696154697361,
+        "dur": 119526,
+        "args": {
+            "Python parent id": 16,
+            "Python id": 226,
+            "Python module id": 0,
+            "Ev Idx": 649,
+        },
+    }
+
+
+@pytest.fixture(scope="function")
 def profiler_data__other_type_data():
     return {
         "name": "process_name",
