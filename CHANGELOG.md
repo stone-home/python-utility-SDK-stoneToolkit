@@ -1,3 +1,14 @@
+## v0.7.0 (2024-08-31)
+
+### Feat
+
+- **analyser**: add a new class - operator
+- **analyser**: add three typs of node for pytorch profiler
+
+### Refactor
+
+- **test**: fix 'missing new line on end of file'
+
 ## v0.6.1 (2024-08-29)
 
 ### Fix
