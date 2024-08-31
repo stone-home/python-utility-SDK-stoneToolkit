@@ -1,19 +1,76 @@
-from platform import machine
-from typing import Any, Dict, List
+import copy
+from typing import Any, Dict, List, Tuple, Union, Optional
 from bisect import bisect_left, bisect_right
 from .node import OperatorNode
 from .stack import StackLeaf
 
 
-class Operators:
-    def __init__(self, data: List[Dict[str, Any]]):
-        self._data: Dict[int, OperatorNode] = self._build_up(data)
+class ForwardBackward:
+    def __init__(self):
+        self._forward: List[OperatorNode] = []
+        self._backward: List[OperatorNode] = []
 
     @property
-    def ops(self) -> Dict[int, OperatorNode]:
+    def forward(self) -> List[OperatorNode]:
+        return self._forward
+
+    @property
+    def backward(self) -> List[OperatorNode]:
+        return self._backward
+
+    @property
+    def forward_timestamp(self) -> Tuple[Optional[int], Optional[int]]:
+        if len(self.forward) == 0:
+            return None, None
+        _element = self._get_node_in_first_order_and_max_duration(
+            copy.deepcopy(self.forward)
+        )
+        return _element.start_time, _element.end_time
+
+    @property
+    def backward_timestamp(self) -> Tuple[Optional[int], Optional[int]]:
+        if len(self.backward) == 0:
+            return None, None
+        _element = self._get_node_in_first_order_and_max_duration(
+            copy.deepcopy(self.backward)
+        )
+        return _element.start_time, _element.end_time
+
+    def _get_node_in_first_order_and_max_duration(
+        self, nodes: List[OperatorNode]
+    ) -> OperatorNode:
+        nodes.sort(key=lambda x: (x.start_time, -x.end_time))
+        return nodes[0]
+
+    def add_op(self, op: OperatorNode):
+        if "Backward" in op.name:
+            self._add_op(op, "_backward")
+        else:
+            self._add_op(op, "_forward")
+
+    def _add_op(self, op: OperatorNode, attr_name: str):
+        _attr_value: List[OperatorNode] = getattr(self, attr_name)
+        if op not in _attr_value:
+            return _attr_value.append(op)
+
+
+class Operators:
+    def __init__(self, data: List[Dict[str, Any]]):
+        self._data: Dict[int, List[OperatorNode]] = {}
+        self._sequences: Dict[int, Union[ForwardBackward]] = {}
+        self._data, self._sequences = self._build_up(data)
+
+    @property
+    def ops(self) -> Dict[int, List[OperatorNode]]:
         return self._data
 
-    def _build_up(self, data: List[Dict[str, Any]]):
+    @property
+    def sequences(self) -> Dict[int, Union[ForwardBackward]]:
+        return self._sequences
+
+    def _build_up(
+        self, data: List[Dict[str, Any]]
+    ) -> Tuple[Dict[int, List[OperatorNode]], Dict[int, Union[ForwardBackward]]]:
         """Build up a time-based dictionary data structure to store all the operator nodes.
         todo: a large scale of data may occurs duplicated timestamp issue. The nested structure should be considered.
                 such as Dict[int, List[OperatorNode]].
@@ -24,25 +81,26 @@ class Operators:
         Returns:
             Dict[int, OperatorNode]: a dictionary contains all the operator nodes.
         """
-        _ops_nodes: Dict[int, OperatorNode] = {}
+        _ops_nodes: Dict[int, List[OperatorNode]] = {}
+        _sequences: Dict[int, Union[ForwardBackward]] = {}
         for trace in data:
             if trace.get("cat", None) not in ["cpu_op"]:
                 # Only specified type of events will be imported to the class
                 # currently, only support cpu_op
                 continue
             _node = OperatorNode(trace)
-            if _node.start_time in _ops_nodes.keys():
-                # To avoid the duplicated timestamp issue
-                # the nested structure should be considered.
-                # such as Dict[int, List[OperatorNode]].
-                _duplicate_node = _ops_nodes[_node.start_time]
-                raise ValueError(
-                    f"Duplicated Events"
-                    f"Event 1: start time: {_node.start_time}, OP name: {_node.name}, Event index: {_node.value['args']['Ev Idx']},"
-                    f"Event 2: start time: {_duplicate_node.start_time}, OP name: {_duplicate_node.name}, Event index: {_duplicate_node.value['args']['Ev Idx']}"
-                )
-            _ops_nodes[_node.start_time] = _node
-        return _ops_nodes
+            if _node.start_time in _ops_nodes:
+                if _node not in _ops_nodes[_node.start_time]:
+                    _ops_nodes[_node.start_time].append(_node)
+            else:
+                _ops_nodes[_node.start_time] = [_node]
+            # to build up the sequence of the operator nodes
+            if _node.seq_number is not None:
+                if _node.seq_number not in _sequences.keys():
+                    _sequences[_node.seq_number] = ForwardBackward()
+                _sequences[_node.seq_number].add_op(_node)
+
+        return _ops_nodes, _sequences
 
     def search_ops_by_stackleaf(self, leaf: StackLeaf):
         """The function is built upon the binary search algorithm to find all the operator nodes within a specified stack leaf.
@@ -76,7 +134,8 @@ class Operators:
         # To collect all values within a specified time range
         result = []
         for i in range(start_idx, end_idx):
-            result.append(self._data[sorted_timestamps[i]])
+            for item in self._data[sorted_timestamps[i]]:
+                result.append(item)
 
         return self._stack_op_up(result)
 
