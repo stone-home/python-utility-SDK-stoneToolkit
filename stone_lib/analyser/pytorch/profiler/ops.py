@@ -38,8 +38,8 @@ class Operators:
                 _duplicate_node = _ops_nodes[_node.start_time]
                 raise ValueError(
                     f"Duplicated Events"
-                    f"Event 1: start time: {_node.start_time}, OP name: {_node.name}, Event index: {_node['args']['Ev Idx']},"
-                    f"Event 2: start time: {_duplicate_node.start_time}, OP name: {_duplicate_node.name}, Event index: {_duplicate_node['args']['Ev Idx']}"
+                    f"Event 1: start time: {_node.start_time}, OP name: {_node.name}, Event index: {_node.value['args']['Ev Idx']},"
+                    f"Event 2: start time: {_duplicate_node.start_time}, OP name: {_duplicate_node.name}, Event index: {_duplicate_node.value['args']['Ev Idx']}"
                 )
             _ops_nodes[_node.start_time] = _node
         return _ops_nodes
