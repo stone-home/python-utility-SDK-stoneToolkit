@@ -187,7 +187,7 @@ class OperatorNode(ProfilerNode):
 
     @property
     def input_types(self) -> List[str]:
-        return self.value["args"]["Input type"]
+        return self.value["args"].get("Input type", [])
 
     @property
     def input_args(self) -> List[Dict[str, Any]]:
