@@ -1,3 +1,14 @@
+## v0.8.0 (2024-08-31)
+
+### Feat
+
+- **analyser**: operator support searching backward ops
+
+### Fix
+
+- **analyser**: fix 'input type' missing issue
+- **analyser**: fix 'OperatorNode' object is not subscriptable under Operator, line 42
+
 ## v0.7.0 (2024-08-31)
 
 ### Feat
