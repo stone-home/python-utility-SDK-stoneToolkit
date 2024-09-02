@@ -1,3 +1,4 @@
+from audioop import reverse
 from typing import Any, Dict, List, Optional, Tuple
 from hashlib import sha256
 from stone_lib.utilis.diagram import FlameGraph
@@ -12,30 +13,16 @@ class StackLeaf:
     def __init__(self, node: StackNode):
         assert isinstance(node, StackNode)
         self._leaf = node
-        self._operators: List[OperatorNode] = []
-        self._cpu_instants: List[CpuInstantNode] = []
+        self._hierarchy = None
 
     @property
     def leaf(self) -> StackNode:
         return self._leaf
 
     @property
-    def ops(self) -> List[OperatorNode]:
-        return self._operators
-
-    @property
-    def cpu_instants(self) -> List[CpuInstantNode]:
-        return self._cpu_instants
-
-    @property
     def is_model_layer_trace(self) -> bool:
-        return any([node.is_module_layer for node in self.leaf.backward_stack()])
-
-    @property
-    def max_memory_usage_in_cpu(self) -> int:
-        return max(
-            [_memory_record[1] for _memory_record in self.memory_change_history()]
-        )
+        self._hierarchy = self._get_model_layer_trace()
+        return len(self._hierarchy) > 0
 
     @property
     def module_name(self) -> str:
@@ -47,18 +34,25 @@ class StackLeaf:
         Returns:
 
         """
-        module_list = [
-            trace for trace in self.leaf.backward_stack() if "nn.Module" in trace.name
-        ]
-        len_module_list = len(module_list)
-        _module_name = f"{self.leaf.namespace_name}: {self.leaf.function_name}"
-        if len_module_list >= 1:
-            _module_name = sorted(module_list, key=lambda x: x.start_time)[-1].name
-        return _module_name.split(":")[-1].strip()
+        _hierarchy = self._get_model_layer_trace()
+        if len(_hierarchy) == 0:
+            _hierarchy = [self.leaf]
+        return "->".join([node.function_name for node in _hierarchy])
 
     @property
     def leaf_id(self) -> str:
         return sha256(self.flame_string().encode()).hexdigest()
+
+    def _get_model_layer_trace(self) -> List[StackNode]:
+        module_hierarchy = self._hierarchy
+        if module_hierarchy is None:
+            module_hierarchy = [
+                node.parent
+                for node in self.leaf.backward_stack()
+                if node.is_module_layer
+            ]
+            module_hierarchy.reverse()
+        return module_hierarchy
 
     def flame_string(
         self, weight: Optional[int] = None, module_only: bool = False
@@ -74,50 +68,18 @@ class StackLeaf:
             str: flame graph string, the string is in the format of "trace1;trace2;trace3;...;traceN <weight>"
         """
         trace_list = []
-        for node in self.leaf.backward_stack():
-            if module_only:
-                if node.is_module_layer:
-                    trace_list.append(node.parent.function_name)
-            else:
-                trace_list.append(node.name)
+        if module_only:
+            trace_list = self._get_model_layer_trace()
+        else:
+            for node in self.leaf.backward_stack():
+                trace_list.append(node)
+            trace_list = list(reversed(trace_list))
         if len(trace_list) == 0:
             return None
-        return "; ".join(reversed(trace_list)) + f" {weight if weight else 1}"
-
-    def memory_change_history(self) -> List[Tuple[int, int]]:
-        """Get the memory change history of the stack leaf.
-
-        Returns:
-            List[Tuple[int, int]]: a list of memory change history, each tuple is (timestamp, max_memory),
-                                   if there is no memory change, the list will contain only one record (0, 0).
-        """
-        memory_history = []
-        ordered_cpu_instants = sorted(self.cpu_instants, key=lambda x: x.start_time)
-        max_memory = 0
-        for instant in ordered_cpu_instants:
-            max_memory += instant.bytes
-            memory_history.append((instant.start_time, max_memory))
-        if len(memory_history) == 0:
-            memory_history.append((0, 0))
-        return memory_history
-
-    def add_operator(self, operator: OperatorNode):
-        assert isinstance(operator, OperatorNode)
-        if operator not in self._operators:
-            self._operators.append(operator)
-
-    def remove_operator(self, operator: OperatorNode):
-        if operator in self._operators:
-            self._operators.remove(operator)
-
-    def add_cpu_instant(self, cpu_instant: CpuInstantNode):
-        assert isinstance(cpu_instant, CpuInstantNode)
-        if cpu_instant not in self._cpu_instants:
-            self._cpu_instants.append(cpu_instant)
-
-    def remove_cpu_instant(self, cpu_instant: CpuInstantNode):
-        if cpu_instant in self._cpu_instants:
-            self._cpu_instants.remove(cpu_instant)
+        return (
+            "; ".join([node.name for node in trace_list])
+            + f" {weight if weight else 1}"
+        )
 
     def to_json(self) -> Dict[str, Any]:
         """reformat the stack leaf to a json format.
@@ -133,7 +95,6 @@ class StackLeaf:
             "start": self.leaf.start_time,
             "end": self.leaf.end_time,
             "duration": self.leaf.duration,
-            "memory_history": self.memory_change_history(),
             "id": self.leaf_id,
         }
 
