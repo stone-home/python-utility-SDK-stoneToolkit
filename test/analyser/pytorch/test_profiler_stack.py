@@ -6,7 +6,7 @@ import pytest
 
 from stone_lib.analyser.pytorch.profiler.stack import (
     CpuInstantNode,
-    #     ModelCallStacks,
+    ModelCallStacks,
     OperatorNode,
     StackLeaf,
     StackNode,

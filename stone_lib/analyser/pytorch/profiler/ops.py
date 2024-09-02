@@ -102,18 +102,18 @@ class Operators:
 
         return _ops_nodes, _sequences
 
-    def search_ops_by_stackleaf(self, leaf: StackLeaf):
-        """The function is built upon the binary search algorithm to find all the operator nodes within a specified stack leaf.
-
-        Args:
-            leaf (StackLeaf): the stack leaf.
-
-        Returns:
-            List[OperatorNode]: a list of operator nodes within the specified stack leaf.
-        """
-        ops = self.search_ops_in_time_range(leaf.leaf.start_time, leaf.leaf.end_time)
-        for op in ops:
-            leaf.add_operator(op)
+    # def search_ops_by_stackleaf(self, leaf: StackLeaf):
+    #     """The function is built upon the binary search algorithm to find all the operator nodes within a specified stack leaf.
+    #
+    #     Args:
+    #         leaf (StackLeaf): the stack leaf.
+    #
+    #     Returns:
+    #         List[OperatorNode]: a list of operator nodes within the specified stack leaf.
+    #     """
+    #     ops = self.search_ops_in_time_range(leaf.leaf.start_time, leaf.leaf.end_time)
+    #     for op in ops:
+    #         leaf.add_operator(op)
 
     def search_ops_in_time_range(self, start: int, end: int) -> List[OperatorNode]:
         """The function is built upon the binary search algorithm to find all the operator nodes within a specified time range.

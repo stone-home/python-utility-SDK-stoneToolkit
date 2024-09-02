@@ -43,10 +43,10 @@ class TestOperator:
         assert isinstance(ops, list)
         assert all(op.parent is None for op in ops)
 
-    def test_search_ops_by_stackleaf(
-        self, instant, profiler_data__python_function__module_call
-    ):
-        stack_leaf = StackLeaf(StackNode(profiler_data__python_function__module_call))
-        instant.search_ops_by_stackleaf(stack_leaf)
-        assert len(stack_leaf.ops) == 10
-        assert all(isinstance(op, OperatorNode) for op in stack_leaf.ops)
+    # def test_search_ops_by_stackleaf(
+    #     self, instant, profiler_data__python_function__module_call
+    # ):
+    #     stack_leaf = StackLeaf(StackNode(profiler_data__python_function__module_call))
+    #     instant.search_ops_by_stackleaf(stack_leaf)
+    #     assert len(stack_leaf.ops) == 10
+    #     assert all(isinstance(op, OperatorNode) for op in stack_leaf.ops)
