@@ -1,3 +1,9 @@
+## v0.8.1 (2024-09-03)
+
+### Refactor
+
+- **analyser**: remove ModelCallStacks and simplify the StackLeaf class
+
 ## v0.8.0 (2024-08-31)
 
 ### Feat
