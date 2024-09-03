@@ -5,9 +5,6 @@ from unittest.mock import patch
 import pytest
 
 from stone_lib.analyser.pytorch.profiler.stack import (
-    CpuInstantNode,
-    ModelCallStacks,
-    OperatorNode,
     StackLeaf,
     StackNode,
 )
