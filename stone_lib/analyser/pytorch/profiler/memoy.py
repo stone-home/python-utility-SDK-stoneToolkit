@@ -44,7 +44,6 @@ class MemoryBlock:
 class MemoryActivity:
     def __init__(self, data: List[Dict[str, Any]]):
         self._data: Dict[int, List[MemoryBlock]] = self._build_up(data)
-        self._address: Dict[str, MemoryBlock] = {}
 
     @property
     def activities(self) -> Dict[int, List[MemoryBlock]]:
