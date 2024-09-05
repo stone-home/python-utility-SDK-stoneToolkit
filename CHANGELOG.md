@@ -1,3 +1,9 @@
+## v0.8.2 (2024-09-05)
+
+### Refactor
+
+- **pytorch.profiler**: re-organise the modules under profiler
+
 ## v0.8.1 (2024-09-03)
 
 ### Refactor
