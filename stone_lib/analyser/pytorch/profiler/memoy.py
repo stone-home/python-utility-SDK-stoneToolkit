@@ -6,26 +6,21 @@ from .ops import StackLeaf
 
 class MemoryActivity:
     def __init__(self, data: List[Dict[str, Any]]):
-        self._data: Dict[int, CpuInstantNode] = self._build_up(data)
+        self._data: Dict[int, List[CpuInstantNode]] = self._build_up(data)
 
     @property
-    def activities(self) -> Dict[int, CpuInstantNode]:
+    def activities(self) -> Dict[int, List[CpuInstantNode]]:
         return self._data
 
-    def _build_up(self, data: List[Dict[str, Any]]) -> Dict[int, CpuInstantNode]:
-        _activities: Dict[int, CpuInstantNode] = {}
+    def _build_up(self, data: List[Dict[str, Any]]) -> Dict[int, List[CpuInstantNode]]:
+        _activities: Dict[int, List[CpuInstantNode]] = {}
         for trace in data:
             if trace.get("cat", None) not in ["cpu_instant_event"]:
                 continue
             _node = CpuInstantNode(trace)
-            if _node.start_time in _activities.keys():
-                _duplicate_node = _activities[_node.start_time]
-                raise ValueError(
-                    f"Duplicated Events"
-                    f"Event 1: start time: {_node.start_time}, Event index: {_node.value['args']['Ev Idx']},"
-                    f"Event 2: start time: {_duplicate_node.start_time}, Event index: {_duplicate_node.value['args']['Ev Idx']}"
-                )
-            _activities[_node.start_time] = _node
+            if _node.start_time not in _activities.keys():
+                _activities[_node.start_time] = []
+            _activities[_node.start_time].append(_node)
         return _activities
 
     def search_activities_in_time_range(
@@ -49,7 +44,8 @@ class MemoryActivity:
         # To collect all values within a specified time range
         result = []
         for i in range(start_idx, end_idx):
-            result.append(self._data[sorted_timestamps[i]])
+            for item in self._data[sorted_timestamps[i]]:
+                result.append(item)
 
         result.sort(key=lambda x: x.start_time)
         return result
