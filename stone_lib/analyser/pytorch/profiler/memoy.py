@@ -101,5 +101,5 @@ class MemoryActivity:
             for item in self._data[sorted_timestamps[i]]:
                 result.append(item)
 
-        result.sort(key=lambda x: x.start_time)
+        result.sort(key=lambda x: x.alloc_time)
         return result
