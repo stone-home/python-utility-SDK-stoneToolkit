@@ -9,10 +9,10 @@ class MemoryActivity:
         self._data: Dict[int, CpuInstantNode] = self._build_up(data)
 
     @property
-    def activities(self):
+    def activities(self) -> Dict[int, CpuInstantNode]:
         return self._data
 
-    def _build_up(self, data: List[Dict[str, Any]]):
+    def _build_up(self, data: List[Dict[str, Any]]) -> Dict[int, CpuInstantNode]:
         _activities: Dict[int, CpuInstantNode] = {}
         for trace in data:
             if trace.get("cat", None) not in ["cpu_instant_event"]:
@@ -27,21 +27,6 @@ class MemoryActivity:
                 )
             _activities[_node.start_time] = _node
         return _activities
-
-    def search_ops_by_stackleaf(self, leaf: StackLeaf):
-        """The function is built upon the binary search algorithm to find all the operator nodes within a specified stack leaf.
-
-        Args:
-            leaf (StackLeaf): the stack leaf.
-
-        Returns:
-            List[OperatorNode]: a list of operator nodes within the specified stack leaf.
-        """
-        acts = self.search_activities_in_time_range(
-            leaf.leaf.start_time, leaf.leaf.end_time
-        )
-        for act in acts:
-            leaf.add_cpu_instant(act)
 
     def search_activities_in_time_range(
         self, start: int, end: int

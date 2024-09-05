@@ -72,8 +72,6 @@ class Operators:
         self, data: List[Dict[str, Any]]
     ) -> Tuple[Dict[int, List[OperatorNode]], Dict[int, Union[ForwardBackward]]]:
         """Build up a time-based dictionary data structure to store all the operator nodes.
-        todo: a large scale of data may occurs duplicated timestamp issue. The nested structure should be considered.
-                such as Dict[int, List[OperatorNode]].
 
         Args:
             data (List[Dict[str, Any]]): a list of operator events. only support cpu_op events.
@@ -101,19 +99,6 @@ class Operators:
                 _sequences[_node.seq_number].add_op(_node)
 
         return _ops_nodes, _sequences
-
-    # def search_ops_by_stackleaf(self, leaf: StackLeaf):
-    #     """The function is built upon the binary search algorithm to find all the operator nodes within a specified stack leaf.
-    #
-    #     Args:
-    #         leaf (StackLeaf): the stack leaf.
-    #
-    #     Returns:
-    #         List[OperatorNode]: a list of operator nodes within the specified stack leaf.
-    #     """
-    #     ops = self.search_ops_in_time_range(leaf.leaf.start_time, leaf.leaf.end_time)
-    #     for op in ops:
-    #         leaf.add_operator(op)
 
     def search_ops_in_time_range(self, start: int, end: int) -> List[OperatorNode]:
         """The function is built upon the binary search algorithm to find all the operator nodes within a specified time range.
