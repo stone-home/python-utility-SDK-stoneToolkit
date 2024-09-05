@@ -19,6 +19,11 @@ class StackLeaf:
         return self._leaf
 
     @property
+    def hierarchy(self) -> List[StackNode]:
+        return self._get_model_layer_trace()
+
+
+    @property
     def is_model_layer_trace(self) -> bool:
         self._hierarchy = self._get_model_layer_trace()
         return len(self._hierarchy) > 0
@@ -46,7 +51,7 @@ class StackLeaf:
         module_hierarchy = self._hierarchy
         if module_hierarchy is None:
             module_hierarchy = [
-                node.parent
+                node
                 for node in self.leaf.backward_stack()
                 if node.is_module_layer
             ]
