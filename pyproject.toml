@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stone-lib"
-version = "v0.8.2"
+version = "0.9.0"
 description = "This is a library used for sharing common code acorss all stone's projects."
 authors = ["stone <github@stone-bo.com>"]
 license = "MIT"

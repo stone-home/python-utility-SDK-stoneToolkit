@@ -1,3 +1,15 @@
+## v0.9.0 (2024-09-05)
+
+### Feat
+
+- **analyser**: add a new module - model summary
+
+### Refactor
+
+- **analyser**: remove a unused variable on MemoryActivity
+- **analyser**: revise data type of internal variable `data`
+- **analyser**: change data structure on analyser.pytorch.profiler.memory
+
 ## v0.8.1 (2024-09-03)
 
 ### Refactor
