@@ -1,3 +1,17 @@
+## v0.10.0 (2024-09-11)
+
+### Feat
+
+- **data-structure**: add memory data structure
+
+### Fix
+
+- **analyser**: fix wrong keyword issue on pytorch.profiler.memory
+
+### Refactor
+
+- **anlyser**: revise the condition of is_module_layer
+
 ## v0.9.0 (2024-09-05)
 
 ### Feat
