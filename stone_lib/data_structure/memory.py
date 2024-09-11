@@ -3,28 +3,28 @@ from typing import Union
 
 
 class MemoryBlock(ABC):
-    @abstractmethod
     @property
+    @abstractmethod
     def bytes(self) -> int:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def address(self) -> str:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def alloc_time(self) -> Union[int, float]:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def free_time(self) -> Union[int, float]:
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def duration(self) -> Union[int, float]:
         pass
 
