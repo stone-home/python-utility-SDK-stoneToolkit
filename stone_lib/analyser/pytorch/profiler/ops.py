@@ -2,7 +2,6 @@ import copy
 from typing import Any, Dict, List, Tuple, Union, Optional
 from bisect import bisect_left, bisect_right
 from .node import OperatorNode
-from .stack import StackLeaf
 
 
 class ForwardBackward:

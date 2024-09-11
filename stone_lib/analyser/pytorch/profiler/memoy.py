@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 from bisect import bisect_left, bisect_right
 from .node import CpuInstantNode
-from .ops import StackLeaf
 
 
 class MemoryBlock:

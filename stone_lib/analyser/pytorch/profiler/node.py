@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import re
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterator, List, Optional
-
 from stone_lib.data_structure import TreeNode
 
 
@@ -118,8 +116,8 @@ class StackNode(ProfilerNode):
 
         It can help us rapidly locate the module layer in the stack tree.
         """
-        # return "_call_impl" in self.function_name
-        return "nn.Module" in self.namespace_name
+        return "_call_impl" in self.function_name
+        # return "nn.Module" in self.namespace_name
 
     @property
     def is_getattr(self) -> bool:

@@ -1,11 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 from hashlib import sha256
-from stone_lib.utilis.diagram import FlameGraph
-from stone_lib.analyser.pytorch.profiler.node import (
-    CpuInstantNode,
-    OperatorNode,
-    StackNode,
-)
+from .node import StackNode
 
 
 class StackLeaf:
@@ -21,7 +16,6 @@ class StackLeaf:
     @property
     def hierarchy(self) -> List[StackNode]:
         return self._get_model_layer_trace()
-
 
     @property
     def is_model_layer_trace(self) -> bool:
@@ -51,7 +45,7 @@ class StackLeaf:
         module_hierarchy = self._hierarchy
         if module_hierarchy is None:
             module_hierarchy = [
-                node
+                node.parent
                 for node in self.leaf.backward_stack()
                 if node.is_module_layer
             ]
