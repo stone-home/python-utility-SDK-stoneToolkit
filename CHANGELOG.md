@@ -1,3 +1,9 @@
+## v0.10.1 (2024-09-11)
+
+### Fix
+
+- **data-structure**: fix `__isabstractmethod__` is not a writeable issue
+
 ## v0.10.0 (2024-09-11)
 
 ### Feat
