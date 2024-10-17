@@ -1,3 +1,9 @@
+## v0.11.0 (2024-10-17)
+
+### Feat
+
+- **data-structure**: add non-circular doubly linked table
+
 ## v0.10.1 (2024-09-11)
 
 ### Fix
