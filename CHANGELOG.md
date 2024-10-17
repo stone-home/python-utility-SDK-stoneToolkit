@@ -1,3 +1,9 @@
+## v0.11.1 (2024-10-17)
+
+### Refactor
+
+- **data-struture**: rename class of bidirectionallink
+
 ## v0.11.0 (2024-10-17)
 
 ### Feat
